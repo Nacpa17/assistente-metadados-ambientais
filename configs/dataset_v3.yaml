@@ -1,0 +1,294 @@
+# Configuração do gerador de QA — versão 3.1 (v3 + glossário).
+# Pools por tipo de pergunta:
+#   named:      frases completas que incluem {name}
+#   contextual: frases completas SEM o nome (forçam o modelo a usar contexto)
+
+version: "v3.1"
+
+input_json_dir: "data/raw_json"
+output_path: "data/processed/dataset_v3.jsonl"
+
+# Glossário (curado + auto) — gere antes com:
+#   python -m src.glossary.build --json-dir data/raw_json --out data/glossary/glossary_full.json
+glossary_path: "data/glossary/glossary_full.json"
+
+mix:
+  strategy: keep_all
+  negative_max_ratio: 0.12
+
+seed: 42
+ambiguity_ratio: 0.35
+list_cap: 20
+
+# ---------------------------------------------------------------- #
+# Templates por dataset
+# ---------------------------------------------------------------- #
+prompt_variants:
+  name:
+    contextual:
+      - "Qual é o nome do dataset?"
+      - "Como esse dataset é chamado?"
+      - "Qual o título oficial deste conjunto de dados?"
+  instrument_code:
+    named:
+      - "Qual o código do datastream de {name}?"
+      - "Qual a sigla/identificador do instrumento de {name}?"
+    contextual:
+      - "Qual o código do datastream deste dataset?"
+  purpose:
+    named:
+      - "Qual o propósito do dataset {name}?"
+      - "O que é o {name}?"
+      - "Descreva o dataset {name}."
+      - "Para que serve o produto {name}?"
+      - "Que tipo de informação o {name} fornece?"
+    contextual:
+      - "Qual o propósito deste dataset?"
+      - "Descreva este conjunto de dados."
+      - "O que este produto mede ou calcula?"
+  period:
+    named:
+      - "Qual o período de coleta de {name}?"
+      - "Quando os dados de {name} foram coletados?"
+      - "De que data a que data o experimento {name} ocorreu?"
+      - "Qual a cobertura temporal de {name}?"
+    contextual:
+      - "Qual o período de coleta de dados?"
+      - "Qual a janela temporal deste dataset?"
+  ongoing_status:
+    named:
+      - "O dataset {name} ainda está em coleta?"
+      - "{name} continua recebendo dados novos?"
+      - "A coleta de {name} está ativa ou encerrada?"
+    contextual:
+      - "Este dataset ainda está em coleta?"
+      - "A série de dados continua ativa?"
+  location:
+    named:
+      - "Qual é a localização geográfica de {name}?"
+      - "Onde foi coletado o dataset {name}?"
+      - "Quais as coordenadas de {name}?"
+    contextual:
+      - "Qual é a localização geográfica do experimento?"
+      - "Em que ponto os dados foram coletados?"
+  facility:
+    named:
+      - "Em qual observatório ARM o {name} foi coletado?"
+      - "A qual facility pertence o dataset {name}?"
+      - "Qual site ARM hospeda o {name}?"
+    contextual:
+      - "Em qual observatório os dados foram coletados?"
+      - "A qual facility este dataset pertence?"
+  instrument:
+    named:
+      - "Qual instrumento gera os dados de {name}?"
+      - "Que equipamento está associado ao {name}?"
+      - "Qual instrumento/VAP produz o {name} e onde obtenho detalhes?"
+    contextual:
+      - "Qual instrumento gera estes dados?"
+      - "Que equipamento está associado a este dataset?"
+  organization:
+    named:
+      - "Qual organização atua como {field} de {name}?"
+      - "Quem é o {field} do dataset {name}?"
+    contextual:
+      - "Qual organização atua como {field} deste dataset?"
+  doi:
+    named:
+      - "Onde posso acessar {name}?"
+      - "Qual o DOI de {name}?"
+      - "Como obtenho o dataset {name}?"
+    contextual:
+      - "Onde posso acessar o dataset?"
+      - "Qual o link persistente (DOI) destes dados?"
+  direct_access:
+    named:
+      - "Como acessar diretamente os dados de {name}?"
+      - "Onde faço o download de {name}?"
+    contextual:
+      - "Como acessar diretamente os dados?"
+      - "Onde faço o download destes dados?"
+  data_format:
+    named:
+      - "Em qual formato os dados de {name} são distribuídos?"
+      - "Qual o formato dos arquivos de {name}?"
+    contextual:
+      - "Em qual formato os dados são distribuídos?"
+      - "Qual o formato dos arquivos deste dataset?"
+  free_access:
+    named:
+      - "O acesso aos dados de {name} é gratuito?"
+      - "Preciso pagar para usar o {name}?"
+    contextual:
+      - "O acesso a estes dados é gratuito?"
+  creators:
+    named:
+      - "Quem são os criadores de {name}?"
+      - "Quais pesquisadores compilaram o {name}?"
+    contextual:
+      - "Quem são os criadores do dataset?"
+      - "Quem compilou estes dados?"
+  mentors:
+    named:
+      - "Quem são os instrument mentors de {name}?"
+      - "Qual o mentor responsável pelo instrumento de {name}?"
+    contextual:
+      - "Quem são os instrument mentors deste dataset?"
+  keywords:
+    named:
+      - "Quais são as palavras-chave de {name}?"
+      - "Que temas descrevem {name}?"
+    contextual:
+      - "Quais são as palavras-chave associadas ao dataset?"
+      - "Que temas este dataset aborda?"
+  variables:
+    named:
+      - "Quais variáveis foram medidas em {name}?"
+      - "Que grandezas {name} registra?"
+      - "Quais parâmetros {name} contém?"
+    contextual:
+      - "Quais variáveis foram medidas nesse dataset?"
+      - "Que grandezas este dataset registra?"
+  variable_meaning:
+    named:
+      - "O que significa a variável '{field}' no dataset {name}?"
+      - "Como definir a variável '{field}' em {name}?"
+      - "Para que serve a variável '{field}' em {name}?"
+    contextual:
+      - "O que significa a variável '{field}' neste dataset?"
+      - "Para que serve a variável '{field}' aqui?"
+  date_published:
+    named:
+      - "Quando o {name} foi publicado?"
+      - "Qual a data de publicação de {name}?"
+    contextual:
+      - "Quando este dataset foi publicado?"
+  date_modified:
+    named:
+      - "Quando os metadados de {name} foram atualizados pela última vez?"
+    contextual:
+      - "Quando estes metadados foram atualizados pela última vez?"
+  catalog:
+    named:
+      - "Em qual catálogo {name} está incluído?"
+      - "Onde {name} está catalogado?"
+    contextual:
+      - "Em qual catálogo de dados esse dataset está incluído?"
+  citation:
+    named:
+      - "Como citar {name}?"
+      - "Qual a citação recomendada para {name}?"
+    contextual:
+      - "Como citar esse dataset?"
+      - "Qual a citação recomendada para este conjunto de dados?"
+  encoding_format:
+    named:
+      - "Em qual formato os metadados de {name} estão codificados?"
+    contextual:
+      - "Em qual formato os metadados estão codificados?"
+  encoding_url:
+    named:
+      - "Onde encontro a codificação dos metadados de {name}?"
+    contextual:
+      - "Onde posso encontrar a codificação dos metadados?"
+
+negative_templates:
+  named:
+    - "Os metadados de {name} não contêm esse campo."
+    - "Essa informação não está disponível nos metadados de {name}; consulte o provedor."
+  contextual:
+    - "Essa informação não está disponível nos metadados deste dataset."
+    - "Não há registro dessa informação nos metadados; consulte o provedor."
+
+fields_for_negatives:
+  - period
+  - location
+  - keywords
+  - variables
+  - creators
+  - citation
+  - purpose
+  - instrument
+  - facility
+
+# ---------------------------------------------------------------- #
+# QA de corpus (índices invertidos)
+# ---------------------------------------------------------------- #
+corpus_qa:
+  examples_per_answer: 3
+  per_variable_max: 4000
+  per_var_description_max: 4000
+  per_facility_max: 500
+  per_facility_theme_max: 3000
+  per_variable_count_max: 1500
+
+corpus_prompts:
+  variable_where:
+    - "Quais datasets medem {var}?"
+    - "Em quais datasets encontro a variável {var}?"
+    - "Onde a variável {var} está disponível?"
+  var_desc_where:
+    - "Onde encontro medições de {desc}?"
+    - "Qual dataset fornece {desc}?"
+    - "Preciso de dados de {desc}. Onde busco?"
+  facility_datasets:
+    - "Quais datasets foram coletados no observatório {facility}?"
+    - "Que conjuntos de dados existem para {facility}?"
+    - "O que há disponível para a região de {facility}?"
+  facility_theme_reco:
+    - "Preciso de dados de {theme} na região {facility}. Quais datasets posso usar?"
+    - "Quais datasets recomendados para estudar {theme} em {facility}?"
+    - "Quero analisar {theme} em {facility}; o que devo baixar?"
+    - "Para uma pesquisa sobre {theme} em {facility}, quais dados usar?"
+  facility_theme_instrument:
+    - "Qual instrumento mede {theme} em {facility}?"
+    - "Que equipamentos geram dados de {theme} no site {facility}?"
+  facility_ongoing:
+    - "Quais datasets estão em coleta contínua em {facility}?"
+    - "Quais séries de dados seguem ativas no observatório {facility}?"
+  variable_count:
+    - "Quantos datasets medem a variável {var}?"
+  global_top_variable:
+    - "Qual variável é a mais frequentemente medida nos datasets do corpus analisado?"
+  global_top5_variables:
+    - "Quais são as cinco variáveis mais comuns no corpus?"
+  global_time_range:
+    - "Qual a cobertura temporal aproximada do corpus de datasets analisado?"
+
+# ---------------------------------------------------------------- #
+# QA de GLOSSÁRIO (novo em v3.1)
+# ---------------------------------------------------------------- #
+glossary_qa:
+  examples_per_answer: 3
+  max_alias_pairs: 300
+  join_where: true          # gera também "o que é X e onde encontro"
+
+glossary_prompts:
+  definition:
+    - "O que é {term}?"
+    - "O que significa {term}?"
+    - "Defina {term}."
+    - "Pode explicar o termo {term}?"
+    - "O que é {term} em instrumentação atmosférica?"
+  purpose:
+    - "Para que serve {term}?"
+    - "Qual a utilidade de {term} em pesquisas atmosféricas?"
+    - "Por que {term} é medido?"
+    - "Em que tipo de estudo {term} é usado?"
+  unit:
+    - "Em qual unidade {term} costuma ser expresso?"
+    - "Qual a unidade de {term}?"
+  acronym:
+    - "O que significa a sigla {term}?"
+    - "Qual o nome completo de {term}?"
+    - "{term} é sigla de quê?"
+  alias:
+    - "{a} e {b} representam a mesma grandeza?"
+    - "Qual a diferença entre {a} e {b}?"
+    - "{a} é o mesmo que {b}?"
+  where:
+    - "O que é {term} e onde encontro essa medição?"
+    - "Explique {term} e diga em quais datasets essa variável aparece."
+    - "Defina {term} e indique onde obter esses dados."
+
+multi_hop_pairs: 2000

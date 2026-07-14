@@ -1,0 +1,73 @@
+# Configuração de treino para o Google Colab.
+# Diferença principal: output_dir aponta para o Google Drive, para que os
+# checkpoints sobrevivam se a sessão do Colab cair (é comum). Assim você
+# retoma de onde parou com --resume.
+#
+# Numa GPU do Colab (T4 16GB / L4 / A100) este treino roda MUITO mais rápido
+# que na RTX 4050 de 6GB — tipicamente 2 a 4 horas as 3 épocas completas.
+
+experiment_name: "exp01_llama2_v3"
+seed: 42
+
+model:
+  base: "meta-llama/Llama-2-7b-chat-hf"
+  # Checkpoints e adapter final salvos no Drive (persistem após desconexão):
+  output_dir: "/content/drive/MyDrive/projeto-ic/checkpoints/exp01"
+  trust_remote_code: true
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: "bfloat16"
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_quant_type: "nf4"
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+
+dataset:
+  path: "data/processed/dataset_v3.jsonl"
+  eval_split: 0.02
+  max_length: 512
+  shuffle_seed: 42
+
+system_prompt: |
+  Você é um assistente técnico de instrumentação atmosférica especializado
+  em metadados ambientais. Sempre responda em português, de forma objetiva
+  e precisa. Se a informação não estiver disponível, diga isso claramente
+  em vez de inventar.
+
+training:
+  num_train_epochs: 3
+  per_device_train_batch_size: 2        # a T4/L4 do Colab aguenta batch 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 4        # batch efetivo 8 (2 x 4)
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  bf16: true                            # em T4 antiga o script cai p/ fp16 sozinho
+  fp16: false
+  gradient_checkpointing: true
+  optim: "paged_adamw_8bit"
+  logging_steps: 20
+  eval_strategy: "steps"
+  eval_steps: 500
+  save_strategy: "steps"
+  save_steps: 500
+  save_total_limit: 2                   # menos checkpoints = menos espaço no Drive
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  report_to: ["none"]
+  run_name: "exp01_llama2_v3_colab"
+
+generation:
+  max_new_tokens: 256
+  temperature: 0.2
+  top_p: 0.9
+  repetition_penalty: 1.05

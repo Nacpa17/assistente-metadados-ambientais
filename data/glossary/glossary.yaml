@@ -1,0 +1,961 @@
+# Glossário técnico curado — instrumentação atmosférica ARM
+# Cada entrada: term (canônico), aliases (grafias alternativas nos datastreams),
+# category, unit (opcional), definition (o que é), uso (para que serve),
+# expansao (para siglas: nome completo).
+#
+# Fontes: definições padrão de meteorologia por radar/lidar, documentação ARM
+# e literatura de física de nuvens/aerossóis. Revisar com os orientadores.
+
+entries:
+  # ============ RADAR (nuvem e precipitação) ============
+  - term: mean_doppler_velocity
+    aliases: [MeanDopplerVelocity, mean doppler velocity]
+    category: radar
+    unit: "m/s"
+    definition: >-
+      Velocidade radial média dos alvos dentro do volume iluminado pelo radar,
+      obtida a partir do deslocamento Doppler do sinal retroespalhado. Em
+      radares de nuvem apontados ao zênite, a convenção usual é que valores
+      negativos indicam movimento em direção ao radar (queda de hidrometeoros).
+    uso: >-
+      Estimar a velocidade de queda de hidrometeoros e o movimento vertical do
+      ar, caracterizando a microfísica e a dinâmica de nuvens e precipitação.
+
+  - term: reflectivity
+    aliases: [Reflectivity, radar_reflectivity, reflectivity_copol]
+    category: radar
+    unit: "dBZ"
+    definition: >-
+      Fator de refletividade radar (Z): medida da potência retroespalhada
+      pelos hidrometeoros no volume amostrado, expressa em dBZ. No regime de
+      espalhamento Rayleigh é proporcional à soma dos diâmetros das partículas
+      elevados à sexta potência, sendo dominada pelas partículas maiores.
+    uso: >-
+      Detectar nuvens e precipitação, estimar intensidade de chuva, delimitar
+      camadas de nuvem e inferir conteúdo de hidrometeoros.
+
+  - term: spectral_width
+    aliases: [SpectralWidth, spectrum_width]
+    category: radar
+    unit: "m/s"
+    definition: >-
+      Largura (desvio-padrão) do espectro Doppler dentro do volume do radar,
+      refletindo a dispersão de velocidades radiais dos alvos amostrados.
+    uso: >-
+      Indicador de turbulência e da variedade de velocidades de queda das
+      partículas dentro do volume; auxilia estudos de dinâmica de nuvens.
+
+  - term: linear_depolarization_ratio
+    aliases: [LDR, ldr]
+    category: radar
+    unit: "dB"
+    definition: >-
+      Razão de despolarização linear: razão entre a potência recebida no canal
+      de polarização cruzada e no canal copolar do radar.
+    uso: >-
+      Distinguir fase e forma dos hidrometeoros (gelo vs. água líquida),
+      identificar a banda brilhante de derretimento e artefatos no sinal.
+
+  - term: snr
+    aliases: [SNR, signal_to_noise_ratio]
+    category: radar
+    unit: "dB"
+    definition: >-
+      Relação sinal-ruído: razão entre a potência do sinal retornado e o nível
+      de ruído do receptor.
+    uso: >-
+      Avaliar a qualidade das medições e filtrar dados abaixo do limiar de
+      detecção confiável.
+
+  - term: RHI
+    category: sigla
+    expansao: "Range-Height Indicator"
+    definition: >-
+      Modo de varredura do radar em que a antena varre em elevação mantendo o
+      azimute fixo, produzindo um corte vertical da atmosfera.
+    uso: >-
+      Examinar a estrutura vertical de nuvens e precipitação ao longo de uma
+      direção específica.
+
+  - term: PPI
+    category: sigla
+    expansao: "Plan Position Indicator"
+    definition: >-
+      Modo de varredura do radar em que a antena gira em azimute com elevação
+      fixa, produzindo um mapa aproximadamente horizontal dos ecos.
+    uso: >-
+      Mapear a distribuição espacial de nuvens e precipitação ao redor do
+      radar.
+
+  # ============ LIDAR ============
+  - term: backscatter
+    aliases: [backscatter_coefficient, attenuated_backscatter]
+    category: lidar
+    unit: "m⁻¹ sr⁻¹"
+    definition: >-
+      Coeficiente de retroespalhamento: fração da luz do lidar devolvida na
+      direção do instrumento por moléculas, aerossóis e hidrometeoros.
+    uso: >-
+      Construir perfis verticais de aerossóis e nuvens e detectar camadas na
+      atmosfera.
+
+  - term: depolarization_ratio
+    aliases: [depol_ratio, volume_depolarization_ratio]
+    category: lidar
+    definition: >-
+      Razão entre as componentes perpendicular e paralela do sinal
+      retroespalhado do lidar em relação à polarização emitida.
+    uso: >-
+      Separar partículas esféricas (gotículas líquidas) de não esféricas
+      (cristais de gelo, poeira), auxiliando na classificação de nuvens e
+      aerossóis.
+
+  - term: extinction
+    aliases: [extinction_coefficient, aerosol_extinction]
+    category: lidar
+    unit: "m⁻¹"
+    definition: >-
+      Coeficiente de extinção: atenuação total da luz por unidade de caminho,
+      somando absorção e espalhamento por partículas e gases.
+    uso: >-
+      Quantificar a carga de aerossol, calcular profundidade óptica e estimar
+      visibilidade.
+
+  - term: aerosol_scattering_ratio
+    aliases: [scattering_ratio]
+    category: lidar
+    definition: >-
+      Razão entre o retroespalhamento total (moléculas + partículas) e o
+      retroespalhamento puramente molecular.
+    uso: >-
+      Detectar e quantificar camadas de aerossol em perfis de lidar Raman ou
+      HSRL.
+
+  - term: cloud_base_height
+    aliases: [CloudBaseBestEstimate, cloud_base, cbh]
+    category: lidar
+    unit: "m"
+    definition: >-
+      Altura da base da nuvem mais baixa detectada acima do instrumento.
+    uso: >-
+      Aplicações em aviação, estudos de radiação e validação de modelos de
+      nuvens; produto típico de ceilômetros, lidars e do VAP ARSCL.
+
+  - term: cloud_top_height
+    aliases: [cloud_top, cth]
+    category: lidar
+    unit: "m"
+    definition: >-
+      Altura do topo da nuvem mais alta detectada pelo sensor ativo (radar ou
+      lidar).
+    uso: >-
+      Caracterizar a extensão vertical das nuvens e sua interação com a
+      radiação.
+
+  # ============ TERMODINÂMICA / UMIDADE / VENTO ============
+  - term: temp
+    aliases: [T, tdry, temperature, air_temperature]
+    category: termodinamica
+    unit: "°C ou K"
+    definition: >-
+      Temperatura do ar (bulbo seco) medida por termômetro ou sensor
+      equivalente.
+    uso: >-
+      Variável fundamental para caracterizar o estado termodinâmico da
+      atmosfera em superfícies, torres e sondagens.
+
+  - term: rh
+    aliases: [RH, relative_humidity]
+    category: termodinamica
+    unit: "%"
+    definition: >-
+      Umidade relativa: razão percentual entre a pressão de vapor observada e
+      a pressão de vapor de saturação na mesma temperatura.
+    uso: >-
+      Indicar quão próximo o ar está da saturação; essencial para previsão de
+      nuvens, nevoeiro e conforto térmico.
+
+  - term: pres
+    aliases: [p, pressure, atmos_pressure, barometric_pressure]
+    category: termodinamica
+    unit: "hPa"
+    definition: >-
+      Pressão atmosférica (barométrica) exercida pela coluna de ar acima do
+      ponto de medida.
+    uso: >-
+      Referência vertical das medições e insumo de praticamente todos os
+      cálculos termodinâmicos e dinâmicos.
+
+  - term: mixing_ratio
+    aliases: [water_vapor_mixing_ratio, wv_mixing_ratio, r]
+    category: termodinamica
+    unit: "g/kg"
+    definition: >-
+      Razão de mistura de vapor d'água: massa de vapor por unidade de massa de
+      ar seco. É conservativa em processos sem mudança de fase.
+    uso: >-
+      Rastrear o conteúdo de umidade em perfis verticais e torres
+      meteorológicas (ex.: produto TWRMR da torre de 60 m do SGP).
+
+  - term: vap_pres
+    aliases: [vapor_pressure, e]
+    category: termodinamica
+    unit: "hPa"
+    definition: >-
+      Pressão parcial exercida pelo vapor d'água presente no ar.
+    uso: >-
+      Base para cálculo de umidade relativa, ponto de orvalho e fluxos de
+      umidade.
+
+  - term: q
+    aliases: [specific_humidity]
+    category: termodinamica
+    unit: "kg/kg"
+    definition: >-
+      Umidade específica: massa de vapor d'água por unidade de massa de ar
+      úmido. Nos produtos de análise variacional da ARM, "q" denota essa
+      grandeza.
+    uso: >-
+      Variável de umidade padrão em balanços de água e forçantes de larga
+      escala para modelos.
+
+  - term: omega
+    category: termodinamica
+    unit: "Pa/s"
+    definition: >-
+      Velocidade vertical em coordenada de pressão (dp/dt). Valores negativos
+      indicam movimento ascendente; positivos, subsidência.
+    uso: >-
+      Diagnosticar ascendência/subsidência de larga escala em análises
+      variacionais e reanálises.
+
+  - term: w
+    aliases: [vertical_velocity, w_wind]
+    category: termodinamica
+    unit: "m/s"
+    definition: >-
+      Velocidade vertical do ar em coordenada de altura.
+    uso: >-
+      Caracterizar correntes ascendentes/descendentes em nuvens e na camada
+      limite (medida, p.ex., por lidar Doppler e perfiladores).
+
+  - term: u
+    aliases: [u_wind, eastward_wind]
+    category: termodinamica
+    unit: "m/s"
+    definition: >-
+      Componente zonal do vento (positiva de oeste para leste).
+    uso: >-
+      Junto com a componente v, descreve o vetor vento horizontal em
+      sondagens, perfiladores e análises.
+
+  - term: v
+    aliases: [v_wind, northward_wind]
+    category: termodinamica
+    unit: "m/s"
+    definition: >-
+      Componente meridional do vento (positiva de sul para norte).
+    uso: >-
+      Junto com a componente u, descreve o vetor vento horizontal.
+
+  - term: wspd
+    aliases: [wind_speed, wspd_vec_mean]
+    category: termodinamica
+    unit: "m/s"
+    definition: >-
+      Velocidade (módulo) do vento horizontal.
+    uso: >-
+      Monitoramento de superfície, energia eólica e validação de modelos.
+
+  - term: wdir
+    aliases: [wind_direction, wdir_vec_mean]
+    category: termodinamica
+    unit: "graus"
+    definition: >-
+      Direção de onde o vento sopra, medida em graus a partir do norte
+      geográfico (convenção meteorológica).
+    uso: >-
+      Caracterizar o escoamento e identificar mudanças de massa de ar.
+
+  - term: s
+    aliases: [dry_static_energy]
+    category: termodinamica
+    unit: "J/kg"
+    definition: >-
+      Nos produtos de análise variacional da ARM, "s" denota a energia
+      estática seca (s = c_p·T + g·z), que combina entalpia sensível e
+      energia potencial.
+    uso: >-
+      Realizar balanços de energia da coluna atmosférica e derivar forçantes
+      para modelos.
+
+  - term: precip
+    aliases: [precipitation, precip_rate, rain_rate]
+    category: termodinamica
+    unit: "mm ou mm/h"
+    definition: >-
+      Precipitação acumulada (mm) ou taxa de precipitação (mm/h) registrada
+      por pluviômetros, disdrômetros ou estimada por radar.
+    uso: >-
+      Hidrometeorologia, validação de estimativas por radar/satélite e
+      estudos de eventos extremos.
+
+  - term: theta
+    aliases: [potential_temperature]
+    category: termodinamica
+    unit: "K"
+    definition: >-
+      Temperatura potencial: temperatura que uma parcela de ar teria se
+      levada adiabaticamente ao nível de 1000 hPa.
+    uso: >-
+      Comparar parcelas em níveis diferentes e diagnosticar estabilidade
+      atmosférica.
+
+  - term: dewpoint
+    aliases: [dp, td, dew_point_temperature]
+    category: termodinamica
+    unit: "°C"
+    definition: >-
+      Temperatura do ponto de orvalho: temperatura à qual o ar deve ser
+      resfriado, a pressão constante, para atingir a saturação.
+    uso: >-
+      Medida absoluta de umidade; usada em previsão de nevoeiro e convecção.
+
+  - term: lwc
+    aliases: [liquid_water_content]
+    category: termodinamica
+    unit: "g/m³"
+    definition: >-
+      Conteúdo de água líquida: massa de água líquida (gotículas) por volume
+      de ar.
+    uso: >-
+      Caracterizar microfísica de nuvens e risco de formação de gelo em
+      aeronaves.
+
+  - term: lwp
+    aliases: [liquid_water_path]
+    category: termodinamica
+    unit: "g/m²"
+    definition: >-
+      Caminho de água líquida: integral vertical do conteúdo de água líquida
+      na coluna atmosférica (produto típico do radiômetro de micro-ondas).
+    uso: >-
+      Estudos de radiação e nuvens; restrição observacional para modelos.
+
+  - term: pwv
+    aliases: [precipitable_water, total_precipitable_water]
+    category: termodinamica
+    unit: "cm ou mm"
+    definition: >-
+      Água precipitável: integral vertical do vapor d'água na coluna,
+      expressa como lâmina equivalente de água.
+    uso: >-
+      Monitorar umidade da coluna para previsão de precipitação e correções
+      em sensoriamento remoto.
+
+  # ============ RADIAÇÃO ============
+  - term: irradiance
+    aliases: [irradiância]
+    category: radiacao
+    unit: "W/m²"
+    definition: >-
+      Fluxo de energia radiante incidente por unidade de área.
+    uso: >-
+      Base do balanço de energia na superfície e da avaliação do recurso
+      solar.
+
+  - term: direct_normal
+    aliases: [direct_normal_irradiance, DNI, direct_normal_narrowband]
+    category: radiacao
+    unit: "W/m²"
+    definition: >-
+      Irradiância solar direta medida em superfície perpendicular ao feixe
+      solar, excluindo a componente difusa.
+    uso: >-
+      Estimar profundidade óptica de aerossol e avaliar recurso para energia
+      solar concentrada.
+
+  - term: diffuse_hemisp
+    aliases: [diffuse_hemispheric_irradiance, diffuse]
+    category: radiacao
+    unit: "W/m²"
+    definition: >-
+      Irradiância difusa hemisférica: radiação solar espalhada pelo céu que
+      atinge uma superfície horizontal, excluindo o feixe direto.
+    uso: >-
+      Separar efeitos de nuvens e aerossóis no balanço radiativo de
+      superfície.
+
+  - term: downwelling_shortwave
+    aliases: [down_short_hemisp, dsdh, shortwave_down]
+    category: radiacao
+    unit: "W/m²"
+    definition: >-
+      Fluxo descendente de radiação de onda curta (solar) que chega à
+      superfície.
+    uso: >-
+      Componente essencial do balanço de energia superficial.
+
+  - term: upwelling_longwave
+    aliases: [up_long_hemisp, longwave_up]
+    category: radiacao
+    unit: "W/m²"
+    definition: >-
+      Fluxo ascendente de radiação de onda longa (infravermelho térmico)
+      emitido pela superfície e pela atmosfera abaixo do sensor.
+    uso: >-
+      Fechar o balanço radiativo e estimar temperatura efetiva da superfície.
+
+  - term: radiance
+    aliases: [radiância, spectral_radiance]
+    category: radiacao
+    unit: "W/(m²·sr) ou mW/(m²·sr·cm⁻¹)"
+    definition: >-
+      Intensidade radiativa por unidade de área e de ângulo sólido; na forma
+      espectral, também por intervalo de número de onda (como mede o AERI no
+      infravermelho).
+    uso: >-
+      Inversão de perfis de temperatura e umidade e validação de modelos de
+      transferência radiativa.
+
+  - term: sza
+    aliases: [solar_zenith_angle]
+    category: radiacao
+    unit: "graus"
+    definition: >-
+      Ângulo zenital solar: ângulo entre o zênite local e a direção do Sol.
+    uso: >-
+      Normalizar medidas radiométricas e calcular massa de ar óptica.
+
+  - term: wavenumber
+    aliases: [wnum]
+    category: radiacao
+    unit: "cm⁻¹"
+    definition: >-
+      Número de onda: inverso do comprimento de onda, unidade usual de
+      espectros no infravermelho (AERI, LBLRTM).
+    uso: >-
+      Eixo espectral para radiância e transmitância em estudos de
+      transferência radiativa.
+
+  # ============ AEROSSOL ============
+  - term: aod
+    aliases: [AOT, aerosol_optical_depth, aerosol_optical_thickness]
+    category: aerossol
+    definition: >-
+      Profundidade óptica de aerossol: integral vertical do coeficiente de
+      extinção dos aerossóis na coluna atmosférica (adimensional).
+    uso: >-
+      Principal métrica de carga de aerossol na coluna, medida por fotômetros
+      solares como o CSPHOT.
+
+  - term: angstrom_exponent
+    aliases: [alpha, ang_exp]
+    category: aerossol
+    definition: >-
+      Expoente de Ångström: parâmetro que descreve a dependência espectral da
+      profundidade óptica de aerossol.
+    uso: >-
+      Inferir o tamanho dominante das partículas (valores altos indicam
+      partículas finas; baixos, grossas).
+
+  - term: ccn
+    aliases: [CCN, cloud_condensation_nuclei]
+    category: aerossol
+    unit: "cm⁻³"
+    definition: >-
+      Núcleos de condensação de nuvem: subconjunto dos aerossóis capaz de
+      ativar gotículas em determinada supersaturação.
+    uso: >-
+      Estudar interações aerossol-nuvem e seus efeitos no clima.
+
+  - term: cn
+    aliases: [CN, condensation_nuclei, particle_concentration]
+    category: aerossol
+    unit: "cm⁻³"
+    definition: >-
+      Concentração total de partículas de aerossol (núcleos de condensação),
+      tipicamente medida por contadores CPC.
+    uso: >-
+      Monitorar a população total de aerossóis próximo à superfície.
+
+  - term: scattering_coefficient
+    aliases: [total_scattering, sigma_sp, Bs_G_Dry]
+    category: aerossol
+    unit: "Mm⁻¹"
+    definition: >-
+      Coeficiente de espalhamento de luz pelos aerossóis, medido por
+      nefelômetro em comprimentos de onda selecionados.
+    uso: >-
+      Caracterizar propriedades ópticas do aerossol e calcular albedo de
+      espalhamento simples.
+
+  - term: absorption_coefficient
+    aliases: [sigma_ap, Ba_G_Dry]
+    category: aerossol
+    unit: "Mm⁻¹"
+    definition: >-
+      Coeficiente de absorção de luz pelos aerossóis (ex.: black carbon),
+      medido por instrumentos como PSAP ou CLAP.
+    uso: >-
+      Avaliar o efeito de aquecimento dos aerossóis absorvedores.
+
+  - term: number_size_distribution
+    aliases: [dN_dlogDp, size_distribution]
+    category: aerossol
+    definition: >-
+      Distribuição de tamanho em número: concentração de partículas por
+      intervalo logarítmico de diâmetro, medida por SMPS, APS ou POPS.
+    uso: >-
+      Base para estudos de formação, crescimento e ativação de aerossóis.
+
+  # ============ INSTRUMENTOS E SIGLAS ARM ============
+  - term: AOS
+    category: sigla
+    expansao: "Aerosol Observing System"
+    definition: >-
+      Conjunto de instrumentos in situ da ARM para caracterização física,
+      química e óptica dos aerossóis próximos à superfície.
+    uso: >-
+      Fonte primária de medidas de aerossol (espalhamento, absorção, CCN,
+      distribuição de tamanho) nos observatórios ARM.
+
+  - term: AERI
+    category: sigla
+    expansao: "Atmospheric Emitted Radiance Interferometer"
+    definition: >-
+      Interferômetro que mede a radiância infravermelha descendente emitida
+      pela atmosfera com alta resolução espectral.
+    uso: >-
+      Recuperar perfis de temperatura e umidade da baixa troposfera e validar
+      modelos de transferência radiativa (ex.: LBLRTM).
+
+  - term: MFRSR
+    category: sigla
+    expansao: "Multi-Filter Rotating Shadowband Radiometer"
+    definition: >-
+      Radiômetro com banda de sombreamento rotativa que separa as componentes
+      direta e difusa da irradiância solar em canais espectrais estreitos.
+    uso: >-
+      Derivar profundidade óptica de aerossol e propriedades de nuvens a
+      partir da radiação em superfície.
+
+  - term: NIMFR
+    category: sigla
+    expansao: "Normal Incidence Multi-Filter Radiometer"
+    definition: >-
+      Radiômetro multicanal que acompanha o Sol e mede a irradiância direta
+      em incidência normal.
+    uso: >-
+      Medidas espectrais do feixe solar direto para aerossol e calibração.
+
+  - term: MPL
+    category: sigla
+    expansao: "Micropulse Lidar"
+    definition: >-
+      Lidar de micropulsos, de baixa energia e alta taxa de repetição, seguro
+      aos olhos.
+    uso: >-
+      Perfis contínuos de aerossóis e nuvens e detecção de base de nuvem.
+
+  - term: HSRL
+    category: sigla
+    expansao: "High Spectral Resolution Lidar"
+    definition: >-
+      Lidar de alta resolução espectral que separa o retorno molecular do
+      particulado.
+    uso: >-
+      Obter extinção e retroespalhamento de aerossol de forma absoluta, sem
+      suposição de razão lidar.
+
+  - term: Raman_lidar
+    aliases: [RL, RLPROF, raman lidar]
+    category: sigla
+    expansao: "Raman Lidar"
+    definition: >-
+      Lidar que explora o espalhamento Raman inelástico (N₂, H₂O) para
+      medições quantitativas.
+    uso: >-
+      Perfis de vapor d'água, temperatura e propriedades de aerossol; base
+      dos produtos RLPROF da ARM.
+
+  - term: KAZR
+    category: sigla
+    expansao: "Ka-band ARM Zenith Radar"
+    definition: >-
+      Radar de nuvem em banda Ka (~35 GHz) apontado ao zênite, sucessor do
+      MMCR.
+    uso: >-
+      Perfis contínuos de refletividade, velocidade Doppler e largura
+      espectral em nuvens.
+
+  - term: MMCR
+    category: sigla
+    expansao: "Millimeter Wavelength Cloud Radar"
+    definition: >-
+      Radar de nuvem milimétrico (35 GHz) da geração anterior ao KAZR nos
+      observatórios ARM.
+    uso: >-
+      Base histórica dos perfis de nuvem ARM; seus momentos alimentam o VAP
+      ARSCL.
+
+  - term: SACR
+    aliases: [KaSACR, WSACR, XSACR-scan, Ka/W-SACR]
+    category: sigla
+    expansao: "Scanning ARM Cloud Radar"
+    definition: >-
+      Família de radares de nuvem com capacidade de varredura (bandas Ka, W e
+      X).
+    uso: >-
+      Amostrar a estrutura tridimensional de nuvens em torno dos
+      observatórios.
+
+  - term: XSAPR
+    aliases: [CSAPR]
+    category: sigla
+    expansao: "X-/C-band Scanning ARM Precipitation Radar"
+    definition: >-
+      Radares de precipitação com varredura nas bandas X e C operados pela
+      ARM.
+    uso: >-
+      Mapear precipitação em escala regional; dados corrigidos pelo
+      processamento CMAC.
+
+  - term: RWP
+    aliases: [915rwp, radar_wind_profiler]
+    category: sigla
+    expansao: "Radar Wind Profiler (915 MHz)"
+    definition: >-
+      Perfilador de vento por radar UHF que estima o vetor vento a partir do
+      eco de flutuações do índice de refração.
+    uso: >-
+      Perfis contínuos de vento horizontal e detecção da altura da camada
+      limite.
+
+  - term: MWR
+    aliases: [MWR3C, microwave_radiometer]
+    category: sigla
+    expansao: "Microwave Radiometer"
+    definition: >-
+      Radiômetro passivo de micro-ondas (2 ou 3 canais) que mede temperaturas
+      de brilho do céu.
+    uso: >-
+      Recuperar água precipitável (PWV) e caminho de água líquida (LWP).
+
+  - term: CSPHOT
+    category: sigla
+    expansao: "Cimel Sunphotometer"
+    definition: >-
+      Fotômetro solar Cimel, mesmo instrumento da rede AERONET, que mede a
+      irradiância solar direta em múltiplos comprimentos de onda.
+    uso: >-
+      Derivar profundidade óptica de aerossol espectral e propriedades por
+      inversão (ex.: algoritmo SDA).
+
+  - term: SONDE
+    aliases: [BBSS, radiosonde, sondewnpn]
+    category: sigla
+    expansao: "Balloon-Borne Sounding System (radiossonda)"
+    definition: >-
+      Sistema de sondagem por balão que mede perfis de pressão, temperatura,
+      umidade e vento até a estratosfera.
+    uso: >-
+      Referência para perfis atmosféricos, assimilação em modelos e validação
+      de sensores remotos.
+
+  - term: DL
+    aliases: [doppler_lidar]
+    category: sigla
+    expansao: "Doppler Lidar"
+    definition: >-
+      Lidar coerente que mede a velocidade radial do ar pelo deslocamento
+      Doppler do sinal retroespalhado por aerossóis.
+    uso: >-
+      Perfis de vento e turbulência na camada limite; varreduras PPI/RHI de
+      vento.
+
+  - term: WSI
+    category: sigla
+    expansao: "Whole Sky Imager"
+    definition: >-
+      Imageador de céu total que registra imagens hemisféricas do céu.
+    uso: >-
+      Estimar fração de cobertura de nuvens e classificar condições de céu.
+
+  - term: TSI
+    category: sigla
+    expansao: "Total Sky Imager"
+    definition: >-
+      Câmera hemisférica com espelho que fotografa o céu durante o dia.
+    uso: >-
+      Cobertura fracional de nuvens e apoio à interpretação de medidas
+      radiométricas.
+
+  - term: ARSCL
+    category: sigla
+    expansao: "Active Remote Sensing of Clouds"
+    definition: >-
+      VAP que combina radar de nuvem, lidar e ceilômetro para produzir a
+      melhor estimativa das fronteiras e propriedades verticais das nuvens.
+    uso: >-
+      Produto de referência para base/topo de nuvem e máscaras de
+      hidrometeoros nos observatórios ARM.
+
+  - term: VAP
+    category: sigla
+    expansao: "Value-Added Product"
+    definition: >-
+      Produto de valor agregado: conjunto de dados derivado que combina ou
+      reprocessa datastreams brutos com algoritmos científicos adicionais.
+    uso: >-
+      Fornecer variáveis prontas para pesquisa (ex.: ARSCL, TWRMR, análises
+      variacionais).
+
+  - term: POPS
+    category: sigla
+    expansao: "Portable Optical Particle Spectrometer"
+    definition: >-
+      Espectrômetro óptico portátil que conta e dimensiona partículas de
+      aerossol individualmente por espalhamento de luz.
+    uso: >-
+      Distribuições de tamanho de aerossol em plataformas móveis e aéreas
+      (TBS, UAS).
+
+  - term: SMPS
+    category: sigla
+    expansao: "Scanning Mobility Particle Sizer"
+    definition: >-
+      Espectrômetro que classifica partículas submicrométricas pela
+      mobilidade elétrica.
+    uso: >-
+      Distribuição de tamanho de partículas finas (~10–500 nm).
+
+  - term: APS
+    category: sigla
+    expansao: "Aerodynamic Particle Sizer"
+    definition: >-
+      Espectrômetro que dimensiona partículas pelo tempo de voo aerodinâmico.
+    uso: >-
+      Distribuição de tamanho de partículas grossas (~0,5–20 µm),
+      complementar ao SMPS.
+
+  - term: CMAC
+    category: sigla
+    expansao: "Corrected Moments in Antenna Coordinates"
+    definition: >-
+      Cadeia de processamento da ARM que aplica correções (atenuação,
+      calibração, filtragem) aos momentos dos radares de precipitação.
+    uso: >-
+      Gerar campos de radar de precipitação com qualidade controlada (ex.:
+      XSAPR CMAC).
+
+  - term: LBLRTM
+    category: sigla
+    expansao: "Line-By-Line Radiative Transfer Model"
+    definition: >-
+      Modelo de transferência radiativa que resolve o espectro linha a linha
+      com alta acurácia.
+    uso: >-
+      Cálculos de radiância de referência comparados às observações do AERI.
+
+  - term: CFSR
+    category: sigla
+    expansao: "Climate Forecast System Reanalysis"
+    definition: >-
+      Reanálise atmosférica global do NCEP usada como condição de contorno em
+      análises variacionais.
+    uso: >-
+      Fornecer campos de larga escala para forçantes de modelos e estudos
+      climatológicos.
+
+  - term: varanal
+    aliases: [variational_analysis]
+    category: sigla
+    expansao: "Constrained Variational Analysis"
+    definition: >-
+      Análise variacional restringida que combina observações de superfície,
+      sondagens e balanços físicos para derivar forçantes de larga escala.
+    uso: >-
+      Gerar conjuntos de forçamento (T, q, ventos, omega, s) para simulações
+      de nuvens (SCM/LES).
+
+  - term: SGP
+    category: sigla
+    expansao: "Southern Great Plains"
+    definition: >-
+      Observatório fixo da ARM localizado nas Grandes Planícies do Sul dos
+      EUA (Oklahoma/Kansas), o maior e mais antigo site do programa.
+    uso: >-
+      Principal laboratório de campo para nuvens, aerossóis e radiação em
+      latitudes médias continentais.
+
+  - term: TWRMR
+    category: sigla
+    expansao: "Tower Water-Vapor Mixing Ratio"
+    definition: >-
+      VAP que calcula razões de mistura de vapor d'água nos níveis de 25 m e
+      60 m da torre meteorológica do SGP, com melhores estimativas de T, UR e
+      pressão em 2, 25 e 60 m.
+    uso: >-
+      Estudos de camada limite e gradientes verticais de umidade próximo à
+      superfície.
+
+  - term: IOP
+    category: sigla
+    expansao: "Intensive Operational Period"
+    definition: >-
+      Período intensivo de operações: campanha limitada no tempo com
+      observações adicionais além da rotina do observatório.
+    uso: >-
+      Concentrar medições para estudos de processos específicos (ex.: PECAN).
+
+  - term: NetCDF
+    category: formato
+    expansao: "Network Common Data Form"
+    definition: >-
+      Formato binário autodescritivo para dados científicos multidimensionais,
+      padrão de distribuição dos dados ARM.
+    uso: >-
+      Armazenar séries e perfis com metadados embutidos, legível em Python
+      (xarray/netCDF4), MATLAB e outras linguagens.
+
+  - term: DOI
+    category: formato
+    expansao: "Digital Object Identifier"
+    definition: >-
+      Identificador persistente que aponta de forma estável para um conjunto
+      de dados ou publicação.
+    uso: >-
+      Citação e acesso permanente aos datasets (todos os produtos ARM têm
+      DOI).
+
+  - term: datastream
+    category: formato
+    definition: >-
+      Fluxo de dados nomeado da ARM, identificado por site, instrumento,
+      variante e nível de processamento (ex.: sgpkazrgeC1.a1).
+    uso: >-
+      Unidade básica de organização e download dos dados ARM.
+
+  - term: data_level
+    aliases: [a0, a1, b1, c1]
+    category: formato
+    definition: >-
+      Convenção de níveis de processamento ARM: a0/a1 dados brutos ou
+      calibrados; b1 com controle de qualidade aplicado; c1 produtos de valor
+      agregado (VAPs).
+    uso: >-
+      Escolher o nível adequado entre dado bruto e produto científico pronto.
+
+  - term: ceilometer
+    aliases: [ceil, vceil]
+    category: sigla
+    expansao: "Ceilometer"
+    definition: >-
+      Lidar simples de baixa potência dedicado à detecção automática da base
+      das nuvens.
+    uso: >-
+      Base de nuvem contínua para aviação, ARSCL e climatologias de nuvens.
+
+  # ============ TEMAS (palavras-chave do catálogo) ============
+  - term: Cloud Properties
+    category: tema
+    definition: >-
+      Categoria temática da ARM que reúne medidas e produtos de propriedades
+      de nuvens (fronteiras, fase, conteúdo de água, microfísica).
+    uso: >-
+      Filtrar datasets voltados a estudos de nuvens.
+
+  - term: Aerosols
+    category: tema
+    definition: >-
+      Categoria temática que agrupa medidas in situ e remotas de aerossóis
+      (concentração, tamanho, óptica, CCN).
+    uso: >-
+      Localizar dados para estudos de aerossol e interação aerossol-nuvem.
+
+  - term: Radiometric
+    category: tema
+    definition: >-
+      Categoria de medidas radiométricas: fluxos e radiâncias solares e
+      infravermelhos em superfície.
+    uso: >-
+      Selecionar dados de radiação para balanço de energia e validação de
+      modelos.
+
+  - term: Atmospheric Profiling
+    category: tema
+    definition: >-
+      Categoria de perfis verticais da atmosfera obtidos por sensores remotos
+      ativos/passivos e sondagens.
+    uso: >-
+      Encontrar perfis de vento, temperatura, umidade, nuvens e aerossóis.
+
+  - term: Atmospheric moisture
+    category: tema
+    definition: >-
+      Tema que reúne variáveis de umidade atmosférica (umidade relativa,
+      razão de mistura, vapor d'água integrado).
+    uso: >-
+      Filtrar datasets de umidade em superfície, torre e coluna.
+
+  - term: Vertical velocity
+    category: tema
+    definition: >-
+      Tema associado a medidas e derivações de velocidade vertical do ar
+      (radar, lidar Doppler, análises).
+    uso: >-
+      Estudos de convecção, correntes ascendentes e dinâmica de nuvens.
+
+  - term: Horizontal wind
+    category: tema
+    definition: >-
+      Tema que agrupa medidas do vento horizontal (perfiladores, lidar
+      Doppler, sondagens, torres).
+    uso: >-
+      Análises de escoamento, cisalhamento e energia eólica.
+
+  - term: Airborne Observations
+    category: tema
+    definition: >-
+      Tema de observações aerotransportadas da ARM Aerial Facility (AAF),
+      incluindo aeronaves e balões cativos.
+    uso: >-
+      Dados in situ em altitude para nuvens, aerossóis e gases.
+
+  - term: Derived Quantities and Models
+    category: tema
+    definition: >-
+      Tema de grandezas derivadas e saídas de modelos/análises (VAPs,
+      forçantes variacionais, retrievals).
+    uso: >-
+      Produtos prontos para pesquisa que combinam múltiplas observações.
+
+  - term: Radar Doppler
+    category: tema
+    definition: >-
+      Tema de medidas Doppler por radar (velocidade radial, largura
+      espectral).
+    uso: >-
+      Estudos de dinâmica de nuvens e precipitação por radar.
+
+  - term: Radar reflectivity
+    category: tema
+    definition: >-
+      Tema de medidas de refletividade por radares de nuvem e precipitação.
+    uso: >-
+      Detecção e quantificação de hidrometeoros.
+
+  - term: Atmospheric pressure
+    category: tema
+    definition: >-
+      Tema de medidas de pressão atmosférica em superfície e perfis.
+    uso: >-
+      Referência barométrica para estações e sondagens.
+
+  - term: Atmospheric temperature
+    category: tema
+    definition: >-
+      Tema de medidas de temperatura do ar em superfície, torres e perfis.
+    uso: >-
+      Caracterização térmica da atmosfera em todas as plataformas.

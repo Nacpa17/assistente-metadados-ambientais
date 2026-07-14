@@ -1,0 +1,14 @@
+# Configuração da coleta de metadados ARM.
+
+sources:
+  - name: arm
+    sitemap_url: "https://adc.arm.gov/sitemap.xml"
+    output_dir: "data/raw_json"
+    state_file: "data/raw_json/.state.json"
+    url_include_regex: ".*/discovery/.*"
+    request_timeout_seconds: 30
+    request_delay_seconds: 0.5
+    max_retries: 3
+    user_agent: "INPE-IC-Researcher/1.0 (mailto:eduardoamparo@usp.br)"
+
+log_level: "INFO"

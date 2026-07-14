@@ -1,0 +1,20 @@
+{"prompt": "Qual é o nome do dataset com identificador 1twrmr?", "completion": "Sixty Meter Tower: mixing ratio at surface, 25-m, and 60-m, 1-min average - 1twrmr", "meta": {"kind": "descriptive_name"}}
+{"prompt": "Qual o período de coleta do dataset 1twrmr?", "completion": "1998-04-01 até o presente (coleta contínua)", "meta": {"kind": "descriptive_period"}}
+{"prompt": "O dataset 1twrmr ainda está em coleta?", "completion": "Sim. A coleta iniciou em 1998-04-01 e continua ativa.", "meta": {"kind": "descriptive_status"}}
+{"prompt": "Quais as coordenadas do experimento 1twrmr?", "completion": "Latitude: 36.607322, Longitude: -97.487643", "meta": {"kind": "descriptive_location"}}
+{"prompt": "Em qual observatório ARM o 1twrmr foi coletado?", "completion": "Southern Great Plains (SGP), Central Facility, Lamont, OK (C1)", "meta": {"kind": "descriptive_facility"}}
+{"prompt": "Em qual formato os dados de 1twrmr são distribuídos?", "completion": "NetCDF", "meta": {"kind": "descriptive_data_format"}}
+{"prompt": "O que é mean_doppler_velocity?", "completion": "Velocidade radial média dos alvos dentro do volume iluminado pelo radar, obtida a partir do deslocamento Doppler do sinal retroespalhado. Unidade típica: m/s.", "meta": {"kind": "glossary_definition"}}
+{"prompt": "Para que serve reflectivity?", "completion": "Detectar nuvens e precipitação, estimar intensidade de chuva, delimitar camadas de nuvem e inferir conteúdo de hidrometeoros.", "meta": {"kind": "glossary_purpose"}}
+{"prompt": "O que significa a sigla KAZR?", "completion": "KAZR significa Ka-band ARM Zenith Radar. Radar de nuvem em banda Ka (~35 GHz) apontado ao zênite, sucessor do MMCR.", "meta": {"kind": "glossary_acronym"}}
+{"prompt": "Qual a unidade de spectral_width?", "completion": "spectral_width é tipicamente expresso em m/s.", "meta": {"kind": "glossary_unit"}}
+{"prompt": "O que é rh?", "completion": "Umidade relativa: razão percentual entre a pressão de vapor observada e a pressão de vapor de saturação na mesma temperatura. Unidade típica: %.", "meta": {"kind": "glossary_definition"}}
+{"prompt": "O que significa a sigla AERI?", "completion": "AERI significa Atmospheric Emitted Radiance Interferometer. Interferômetro que mede a radiância infravermelha descendente emitida pela atmosfera com alta resolução espectral.", "meta": {"kind": "glossary_acronym"}}
+{"prompt": "Qual variável é a mais frequentemente medida nos datasets do corpus ARM analisado?", "completion": "mean_doppler_velocity", "meta": {"kind": "analytical_top_variable"}}
+{"prompt": "Qual a faixa de altitude do avião no dataset 1twrmr?", "completion": "Essa informação não está disponível nos metadados deste dataset.", "meta": {"kind": "negative_impossible_field"}}
+{"prompt": "Quantas réplicas experimentais foram usadas em 1twrmr?", "completion": "Essa informação não está disponível nos metadados deste dataset.", "meta": {"kind": "negative_impossible_field"}}
+{"prompt": "Qual o custo de aquisição dos dados de 1twrmr?", "completion": "Os metadados ARM consultados não contêm esse tipo de informação.", "meta": {"kind": "negative_impossible_field"}}
+{"prompt": "Qual a finalidade do projeto BIG do INPE?", "completion": "Essa informação não está disponível nos metadados ARM consultados.", "meta": {"kind": "negative_out_of_scope"}}
+{"prompt": "Qual a cotação do dólar hoje?", "completion": "Essa pergunta está fora do escopo dos metadados ARM analisados.", "meta": {"kind": "negative_out_of_scope"}}
+{"prompt": "Quem é o diretor atual do INPE?", "completion": "Essa informação não consta nos metadados ARM analisados.", "meta": {"kind": "negative_out_of_scope"}}
+{"prompt": "O que significa mixing_ratio?", "completion": "Razão de mistura de vapor d'água: massa de vapor por unidade de massa de ar seco. É conservativa em processos sem mudança de fase. Unidade típica: g/kg.", "meta": {"kind": "glossary_definition"}}

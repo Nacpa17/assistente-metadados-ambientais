@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Dados pesados e modelos
+data/raw_json/*.json
+data/raw_json/.state.json
+data/processed/*.jsonl
+data/analytics/*.json
+data/glossary/glossary_full.json
+benchmarks/results/*.json
+*.bin
+*.safetensors
+*.pt
+*.ckpt
+
+# Treinamento
+checkpoints/
+wandb/
+logs/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Placeholders mantidos
+!data/raw_json/.gitkeep
+!data/processed/.gitkeep
+!data/analytics/.gitkeep
+!data/glossary/.gitkeep
+!benchmarks/results/.gitkeep
