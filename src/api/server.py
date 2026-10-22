@@ -18,6 +18,11 @@ Variáveis de ambiente:
     IC_API_KEY       se setada, exige header X-API-Key igual
     IC_CORS_ORIGINS  CSV de origens (default "*")
     IC_MAX_HISTORY   máx. de turnos preservados (default 8)
+    IC_RAG           1 = liga o RAG (arquitetura híbrida); 0 = desliga.
+                     Sem a variável, vale `rag.enabled` do config.
+
+Com RAG, cada resposta traz as fichas consultadas ("sources"); no streaming
+elas chegam num evento `sources` antes do texto.
 """
 
 from __future__ import annotations
@@ -44,10 +49,14 @@ from transformers import (
     TextIteratorStreamer,
 )
 
+from src.api.sse import sse_event
 from src.common.io import load_yaml, setup_logger
 from src.common.prompts import build_chat_prompt, DEFAULT_SYSTEM_PROMPT
 
 log = setup_logger("api.server")
+
+# Limite do prompt sem RAG (o mesmo da fase 2).
+MAX_INPUT_TOKENS = 1536
 
 # pasta da interface: <raiz do projeto>/frontend
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
@@ -57,12 +66,40 @@ HAS_FRONTEND = FRONTEND_DIR.is_dir() and (FRONTEND_DIR / "index.html").exists()
 class AppState:
     model = None
     tokenizer = None
+    rag = None                      # RagPipeline quando o RAG está ligado
+    rag_error: str | None = None
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
     gen_defaults: dict = {}
     requests_total: int = 0
     requests_errors: int = 0
     tokens_generated_total: int = 0
     last_latency_s: float = 0.0
+
+
+def rag_requested(cfg: dict) -> bool:
+    """IC_RAG (se definida) manda; senão vale rag.enabled do config."""
+    env = os.getenv("IC_RAG")
+    if env is not None and env.strip():
+        return env.strip().lower() in ("1", "true", "sim", "yes", "on")
+    return bool((cfg.get("rag") or {}).get("enabled", False))
+
+
+def load_rag(cfg: dict) -> None:
+    """Carrega o índice RAG; se faltar, o servidor sobe sem RAG (com aviso)."""
+    STATE.rag, STATE.rag_error = None, None
+    if not rag_requested(cfg):
+        return
+    try:
+        from src.rag.pipeline import RagPipeline
+        STATE.rag = RagPipeline.from_config(cfg)
+        log.info("RAG ligado: %s (%s documentos, top_k=%d)",
+                 STATE.rag.settings.index_path,
+                 STATE.rag.index.info.get("n_docs", len(STATE.rag.index.docs)),
+                 STATE.rag.settings.top_k)
+    except Exception as e:
+        STATE.rag_error = str(e)
+        log.warning("RAG pedido, mas não carregou — seguindo SEM RAG. "
+                    "Motivo: %s", e)
 
 
 STATE = AppState()
@@ -98,6 +135,8 @@ async def lifespan(app: FastAPI):
     cfg = load_yaml(cfg_path)
     mcfg = cfg["model"]
     qcfg = cfg.get("quantization", {})
+    # índice RAG antes do LLaMA: se faltar, o aviso aparece em segundos
+    load_rag(cfg)
 
     log.info("Inicializando modelo a partir de %s", cfg_path)
     dtype_map = {"bfloat16": torch.bfloat16, "float16": torch.float16}
@@ -117,6 +156,8 @@ async def lifespan(app: FastAPI):
     tokenizer = AutoTokenizer.from_pretrained(mcfg["output_dir"], use_fast=True)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
+    # prompt longo demais: corta o início (histórico antigo), nunca a pergunta
+    tokenizer.truncation_side = "left"
 
     STATE.model = model
     STATE.tokenizer = tokenizer
@@ -170,13 +211,19 @@ class ChatResponse(BaseModel):
     reply: str
     latency_s: float
     tokens_generated: int
+    sources: list[dict] = Field(default_factory=list)
 
 
 def truncate_history(history: list[Message], max_turns: int) -> list[Message]:
     return history if len(history) <= max_turns else history[-max_turns:]
 
 
-def build_inputs(req: ChatRequest):
+def _count_tokens(text: str) -> int:
+    return len(STATE.tokenizer(text)["input_ids"])
+
+
+def build_prompt(req: ChatRequest) -> tuple[str, list[dict], int]:
+    """(prompt, fontes, limite de tokens do prompt) para a requisição."""
     history = truncate_history(req.history, MAX_HISTORY)
     if req.message is None:
         if not history or history[-1].role != "user":
@@ -187,12 +234,21 @@ def build_inputs(req: ChatRequest):
         history = history[:-1]
     else:
         new_user_message = req.message
-    prompt = build_chat_prompt(
-        STATE.system_prompt, [m.model_dump() for m in history],
-        new_user_message=new_user_message)
+    hist = [m.model_dump() for m in history]
+    if STATE.rag is not None:
+        res = STATE.rag.build_prompt(STATE.system_prompt, new_user_message,
+                                     history=hist, count_tokens=_count_tokens)
+        return res.prompt, res.sources, STATE.rag.settings.max_input_tokens
+    prompt = build_chat_prompt(STATE.system_prompt, hist,
+                               new_user_message=new_user_message)
+    return prompt, [], MAX_INPUT_TOKENS
+
+
+def build_inputs(req: ChatRequest):
+    prompt, sources, max_len = build_prompt(req)
     inputs = STATE.tokenizer(prompt, return_tensors="pt", truncation=True,
-                             max_length=1536).to(STATE.model.device)
-    return inputs
+                             max_length=max_len).to(STATE.model.device)
+    return inputs, sources
 
 
 def gen_kwargs(req: ChatRequest) -> dict:
@@ -210,8 +266,16 @@ def gen_kwargs(req: ChatRequest) -> dict:
 
 @app.get("/healthz", tags=["health"])
 def healthz():
+    rag = {"enabled": STATE.rag is not None}
+    if STATE.rag is not None:
+        rag.update({"index": STATE.rag.settings.index_path,
+                    "n_docs": STATE.rag.index.info.get(
+                        "n_docs", len(STATE.rag.index.docs)),
+                    "top_k": STATE.rag.settings.top_k})
+    elif STATE.rag_error:
+        rag["error"] = STATE.rag_error
     return {"status": "ok", "model_loaded": STATE.model is not None,
-            "frontend": HAS_FRONTEND}
+            "frontend": HAS_FRONTEND, "rag": rag}
 
 
 @app.get("/metrics", tags=["health"])
@@ -231,8 +295,8 @@ def chat(req: ChatRequest):
         raise HTTPException(status_code=503, detail="Modelo ainda não carregado.")
     STATE.requests_total += 1
     try:
-        inputs = build_inputs(req)
         t0 = time.time()
+        inputs, sources = build_inputs(req)
         with torch.inference_mode():
             out = STATE.model.generate(**inputs, **gen_kwargs(req))
         dt = time.time() - t0
@@ -241,7 +305,8 @@ def chat(req: ChatRequest):
         STATE.tokens_generated_total += int(new_ids.shape[0])
         STATE.last_latency_s = dt
         return ChatResponse(reply=text, latency_s=round(dt, 3),
-                            tokens_generated=int(new_ids.shape[0]))
+                            tokens_generated=int(new_ids.shape[0]),
+                            sources=sources)
     except HTTPException:
         STATE.requests_errors += 1
         raise
@@ -256,7 +321,7 @@ def chat(req: ChatRequest):
 async def chat_stream(req: ChatRequest, request: Request):
     if STATE.model is None:
         raise HTTPException(status_code=503, detail="Modelo ainda não carregado.")
-    inputs = build_inputs(req)
+    inputs, sources = build_inputs(req)
     streamer = TextIteratorStreamer(
         STATE.tokenizer, skip_prompt=True, skip_special_tokens=True)
     kw = gen_kwargs(req)
@@ -273,18 +338,22 @@ async def chat_stream(req: ChatRequest, request: Request):
     STATE.requests_total += 1
 
     async def event_gen():
+        # Texto em JSON: quebras de linha não partem o evento SSE
+        # (antes, o pedaço seguinte a um "\n" sumia na interface).
         try:
+            if sources:
+                yield sse_event(sources, event="sources")
             for piece in streamer:
                 if await request.is_disconnected():
                     log.info("Cliente desconectou; abortando stream")
                     break
-                yield f"data: {piece}\n\n"
+                yield sse_event(piece)
                 await asyncio.sleep(0)
-            yield "event: done\ndata: [END]\n\n"
+            yield sse_event("[END]", event="done")
         except Exception as e:
             STATE.requests_errors += 1
             log.exception("Erro no stream")
-            yield f"event: error\ndata: {e}\n\n"
+            yield sse_event(str(e), event="error")
 
     return StreamingResponse(event_gen(), media_type="text/event-stream")
 

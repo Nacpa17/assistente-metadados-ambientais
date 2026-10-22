@@ -493,11 +493,16 @@ class CorpusQA:
                 self.by_var[v["name"]].append(r)
                 if v["description"]:
                     self.by_var_desc[v["description"]].append((r, v["name"]))
+            # dict.fromkeys (e não set): tira repetidos mantendo a ordem do
+            # registro. A ordem de um set de strings muda a cada processo
+            # (PYTHONHASHSEED) e, depois do shuffle com seed fixa, mudava o
+            # dataset gerado de uma execução para outra.
+            themes = list(dict.fromkeys(r.themes))
             if r.facility:
                 self.by_facility[r.facility].append(r)
-                for th in set(r.themes):
+                for th in themes:
                     self.by_fac_theme[(r.facility, th)].append(r)
-            for th in set(r.themes):
+            for th in themes:
                 self.by_theme[th].append(r)
 
     def _pairs(self, kind: str, key: str, items, answer_fn,
@@ -675,6 +680,7 @@ class GlossaryQA:
             unit = (e.get("unit") or "").strip()
             expansao = (e.get("expansao") or "").strip()
             curated = e.get("source") == "curated"
+            unit_dod = e.get("unit_source") == "dod"
 
             if not definition:
                 continue
@@ -684,6 +690,10 @@ class GlossaryQA:
                 ans = definition
                 if unit:
                     ans += f" Unidade típica: {unit}."
+            elif e.get("source") == "dod":
+                # nome longo oficial declarado no DOD (glossary.build --extra)
+                ans = (f'Nos metadados oficiais da ARM (DOD), "{term}" tem o '
+                       f'nome longo "{definition}".')
             else:
                 # auto: honestidade sobre a fonte (descrição dos metadados)
                 ans = (f'Nos metadados ARM, "{term}" é descrito como: '
@@ -706,11 +716,21 @@ class GlossaryQA:
 
             # 3) unidade
             if unit:
+                if unit_dod:
+                    alts = [str(a) for a in e.get("unit_alternatives") or []]
+                    if unit.lower().startswith(("adimensional", "1 (")):
+                        core = f"{term} é adimensional (sem unidade física)"
+                    else:
+                        core = f"{term} é expresso em {unit}"
+                    unit_ans = (f"Segundo os DODs oficiais da ARM, {core}"
+                                + (f"; alguns produtos usam {', '.join(alts)}"
+                                   if alts else "") + ".")
+                else:
+                    unit_ans = f"{term} é tipicamente expresso em {unit}."
                 p = self.b._pair(
                     "glossary_unit",
                     self.rng.choice(self.tpl["unit"]).format(term=term),
-                    f"{term} é tipicamente expresso em {unit}.",
-                    "_glossario")
+                    unit_ans, "_glossario")
                 if p:
                     out.append(p)
 

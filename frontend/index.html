@@ -88,6 +88,11 @@
   .meta { font-size:11px; color:var(--ink-muted); margin-top:9px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
   .meta .pill { display:inline-flex; align-items:center; gap:5px; }
   .meta svg { width:12px; height:12px; opacity:.8; }
+  .sources { margin-top:10px; border-top:1px dashed var(--line); padding-top:8px; font-size:12.5px; color:var(--ink-muted); }
+  .sources .src-title { font-size:11px; font-weight:600; letter-spacing:.02em; color:var(--ink-soft); }
+  .sources ol { margin:5px 0 0; padding-left:20px; }
+  .sources li { margin:3px 0; word-break:break-word; }
+  .sources .kind { display:inline-block; font-size:10.5px; border:1px solid var(--line); border-radius:6px; padding:0 5px; margin-right:6px; color:var(--ink-soft); background:var(--surface); }
   .cursor { display:inline-block; width:7px; height:1.05em; vertical-align:-2px;
     background:var(--accent); margin-left:1px; border-radius:1px; animation:blink 1s steps(2) infinite; }
   @keyframes blink { 0%,50%{opacity:1;} 50.01%,100%{opacity:0;} }
@@ -413,12 +418,20 @@
     messages.pop();
   }
 
+  // O servidor manda cada pedaço de texto em JSON ("data: \"texto\""), para
+  // quebras de linha não partirem o evento SSE. Servidores antigos mandavam
+  // texto cru: nesse caso usamos o texto como veio.
+  function sseData(s){
+    if(s && s[0]==='"'){ try{ const v=JSON.parse(s); if(typeof v==="string") return v; }catch(e){} }
+    return s;
+  }
+
   async function streamAnswer(history, text, a, t0){
     abortCtl=new AbortController();
     const res=await fetch(base()+"/chat/stream",{ method:"POST", signal:abortCtl.signal, headers:headers(), body:JSON.stringify(payload(history,text)) });
     if(!res.ok){ throw new Error("HTTP "+res.status); }
     const reader=res.body.getReader(); const dec=new TextDecoder();
-    let buf="", acc="", started=false;
+    let buf="", acc="", started=false, sources=null;
     for(;;){
       const {value,done}=await reader.read(); if(done) break;
       buf+=dec.decode(value,{stream:true});
@@ -426,12 +439,16 @@
       while((idx=buf.indexOf("\n\n"))>=0){
         const frame=buf.slice(0,idx); buf=buf.slice(idx+2);
         if(frame.startsWith("event:")){
-          const ev=frame.slice(6).split("\n")[0].trim();
-          if(ev==="done"){ finalizeAssistant(a, acc, {t0}); return; }
-          if(ev==="error"){ const d=(frame.split("\n").find(l=>l.startsWith("data:"))||"").slice(5).trim(); throw new Error(d||"erro no servidor"); }
+          const lines=frame.split("\n");
+          const ev=lines[0].slice(6).trim();
+          const raw=(lines.find(l=>l.startsWith("data:"))||"").slice(5).trim();
+          if(ev==="done"){ finalizeAssistant(a, acc, {t0, sources}); return; }
+          if(ev==="error"){ throw new Error(sseData(raw)||"erro no servidor"); }
+          if(ev==="sources"){ try{ const s=JSON.parse(raw); if(Array.isArray(s)) sources=s; }catch(e){} }
         } else if(frame.startsWith("data:")){
           let d=frame.slice(5); if(d[0]===" ") d=d.slice(1);
-          if(d==="[END]"){ finalizeAssistant(a, acc, {t0}); return; }
+          d=sseData(d);
+          if(d==="[END]"){ finalizeAssistant(a, acc, {t0, sources}); return; }
           acc+=d;
           if(!started){ started=true; a.content.innerHTML=""; }
           a.content.dataset.raw=acc;
@@ -440,7 +457,7 @@
         }
       }
     }
-    finalizeAssistant(a, acc, {t0});
+    finalizeAssistant(a, acc, {t0, sources});
   }
 
   async function plainAnswer(history, text, a, t0){
@@ -448,7 +465,20 @@
     const res=await fetch(base()+"/chat",{ method:"POST", signal:abortCtl.signal, headers:headers(), body:JSON.stringify(payload(history,text)) });
     if(!res.ok){ throw new Error("HTTP "+res.status); }
     const data=await res.json();
-    finalizeAssistant(a, data.reply||"", {t0, latency:data.latency_s, tokens:data.tokens_generated});
+    finalizeAssistant(a, data.reply||"", {t0, latency:data.latency_s, tokens:data.tokens_generated, sources:data.sources});
+  }
+
+  // Fichas que o RAG colocou no prompt (só aparecem com o RAG ligado).
+  const KIND_PT = { dataset:"dataset", glossary:"glossário", variable:"variável", facility:"observatório", corpus:"corpus" };
+  function okUrl(u){ return typeof u==="string" && /^https?:\/\/[^\s"'<>]+$/.test(u); }
+  function sourcesBlock(sources){
+    const box=el("div","sources");
+    const items=sources.map(s=>{
+      const doi = okUrl(s.doi) ? ` — <a href="${esc(s.doi)}" target="_blank" rel="noopener noreferrer">${esc(s.doi)}</a>` : "";
+      return `<li><span class="kind">${esc(String(KIND_PT[s.kind]||s.kind||""))}</span>${esc(String(s.title||s.id||""))}${doi}</li>`;
+    }).join("");
+    box.innerHTML=`<span class="src-title">Fontes consultadas</span><ol>${items}</ol>`;
+    return box;
   }
 
   function finalizeAssistant(a, textRaw, opt){
@@ -456,6 +486,7 @@
     const clean=(textRaw||"").trim() || "*(resposta vazia)*";
     messages.push({role:"assistant", content:clean});
     a.content.innerHTML=renderMarkdown(clean);
+    if(Array.isArray(opt.sources) && opt.sources.length) a.wrap.appendChild(sourcesBlock(opt.sources));
     const secs = opt.latency!=null ? opt.latency.toFixed(2) : ((performance.now()-(opt.t0||performance.now()))/1000).toFixed(2);
     const parts=[`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>${secs}s`];
     if(opt.tokens!=null) parts.push(`${opt.tokens} tokens`);

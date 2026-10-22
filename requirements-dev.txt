@@ -1,0 +1,3 @@
+# Só para rodar os testes automáticos (python -m pytest).
+# O RAG em si não precisa de nenhuma biblioteca nova além do requirements.txt.
+pytest>=8.0

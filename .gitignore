@@ -9,9 +9,12 @@ venv/
 # Dados pesados e modelos
 data/raw_json/*.json
 data/raw_json/.state.json
+data/raw_json/_orfaos/
+data/arm_extra/
 data/processed/*.jsonl
 data/analytics/*.json
 data/glossary/glossary_full.json
+data/rag/index.json
 benchmarks/results/*.json
 *.bin
 *.safetensors
@@ -22,6 +25,9 @@ benchmarks/results/*.json
 checkpoints/
 wandb/
 logs/
+
+# Testes
+.pytest_cache/
 
 # IDE / OS
 .vscode/

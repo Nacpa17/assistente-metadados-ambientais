@@ -70,3 +70,13 @@ def ensure_dir(path: str | Path) -> Path:
     p = Path(path)
     p.mkdir(parents=True, exist_ok=True)
     return p
+
+
+def list_json_files(json_dir: str | Path) -> list[Path]:
+    """*.json do diretório do corpus, sem arquivos ocultos.
+
+    Path.glob("*.json") também devolve ".state.json" (o estado do coletor),
+    que não é um registro; subpastas (ex.: _orfaos/) ficam de fora.
+    """
+    return sorted(p for p in Path(json_dir).glob("*.json")
+                  if not p.name.startswith(".") and p.is_file())

@@ -1,4 +1,7 @@
 # Configuração da coleta de metadados ARM.
+# - src.collect.arm_collector: usa tudo abaixo (sitemap -> JSON-LD).
+# - src.collect.arm_extra (serviços oficiais: DOD, DQR, citação, sítios):
+#   usa o user_agent e o request_delay_seconds da primeira fonte.
 
 sources:
   - name: arm
