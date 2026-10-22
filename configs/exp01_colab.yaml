@@ -1,7 +1,8 @@
 # Configuração de treino para o Google Colab.
-# Diferença principal: output_dir aponta para o Google Drive, para que os
-# checkpoints sobrevivam se a sessão do Colab cair (é comum). Assim você
-# retoma de onde parou com --resume.
+# O output_dir é RELATIVO à pasta do projeto: como o notebook entra na pasta
+# do projeto no Google Drive (célula 3), os checkpoints ficam no Drive e
+# sobrevivem se a sessão do Colab cair (é comum) — retome com --resume.
+# Funciona com qualquer nome de pasta (projeto-ic, projeto-ic-2, ...).
 #
 # Numa GPU do Colab (T4 16GB / L4 / A100) este treino roda MUITO mais rápido
 # que na RTX 4050 de 6GB — tipicamente 2 a 4 horas as 3 épocas completas.
@@ -11,8 +12,8 @@ seed: 42
 
 model:
   base: "meta-llama/Llama-2-7b-chat-hf"
-  # Checkpoints e adapter final salvos no Drive (persistem após desconexão):
-  output_dir: "/content/drive/MyDrive/projeto-ic/checkpoints/exp01"
+  # Checkpoints e adapter final na pasta do projeto (no Drive, via célula 3):
+  output_dir: "checkpoints/exp01"
   trust_remote_code: true
 
 quantization:

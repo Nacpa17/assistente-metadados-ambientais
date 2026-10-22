@@ -423,6 +423,16 @@ def main() -> None:
              s["classes_with_dod"], s["classes"], s["levels"], s["variables"],
              s["variables_with_units"], s["datastreams"], s["dqrs"],
              s["dqrs_by_category"], s["facilities"])
+    if not a.sem_dods:
+        com = [c for c, v in catalog["classes"].items() if v["levels"]]
+        sem = [c for c, v in catalog["classes"].items() if not v["levels"]]
+        log.info("Com DOD (%d): %s", len(com), ", ".join(
+            f"{c} [{','.join(sorted(catalog['classes'][c]['levels']))}]"
+            for c in com[:30]) or "-")
+        if sem:
+            log.info("Sem DOD nos níveis %s (%d): %s%s", ",".join(levels),
+                     len(sem), ", ".join(sem[:40]),
+                     " ..." if len(sem) > 40 else "")
 
 
 if __name__ == "__main__":

@@ -198,8 +198,12 @@ def recommendations(rep: dict[str, Any]) -> list[str]:
     out = []
     st = rep["state"]
     if not st.get("present"):
-        out.append("Sem .state.json: não dá para checar colisões de nome. Se "
-                   "a coleta foi feita com o coletor antigo, rode-a de novo.")
+        out.append("Sem .state.json: não dá para checar colisões de nome "
+                   "(registros perdidos). Para conferir, colete numa pasta "
+                   "nova e compare: python -m src.collect.arm_collector "
+                   "--config configs/collect.yaml --out data/raw_json_v2 e "
+                   "depois python -m src.collect.audit --json-dir "
+                   "data/raw_json_v2.")
     elif st["n_overwritten_records"]:
         out.append(f"{st['n_overwritten_records']} registro(s) foram "
                    "sobrescritos por colisão de nomes. Rode: python -m "

@@ -26,7 +26,7 @@ O projeto cobre: coleta de metadados, geração de um dataset de perguntas e res
 
 > **⚠️ As duas pegadinhas mais comuns**
 > 1. **Rode sempre da raiz do projeto** (a pasta `projeto-ic`). Se aparecer `ModuleNotFoundError: No module named 'src'`, você não está na pasta certa.
-> 2. **Local × Colab:** use `configs/exp01.yaml` para rodar/avaliar **no PC** (aponta para `checkpoints/exp01`), e `configs/exp01_colab.yaml` **só para treinar no Colab** (aponta para o Google Drive). Usar o config errado causa o erro `Can't find 'adapter_config.json'` — veja a [seção 9](#10-solução-de-problemas).
+> 2. **Local × Colab:** use `configs/exp01.yaml` **no PC** e `configs/exp01_colab.yaml` **no Colab**. Os dois procuram o adapter em `checkpoints/exp01` **dentro da pasta do projeto** — no Colab, é a pasta do Drive em que a célula 3 do notebook entra. Se aparecer `Can't find 'adapter_config.json'`, veja a [seção 10](#10-solução-de-problemas).
 
 ---
 
@@ -237,14 +237,15 @@ python -m src.training.train --config configs/exp01.yaml --resume checkpoints/ex
 
 Numa GPU pequena o treino pode levar dezenas de horas. No Colab (GPU T4 gratuita) as épocas completam em **2–4 h**. O projeto já inclui o notebook `IC_treino_colab.ipynb`.
 
-1. Suba a pasta `projeto-ic` **inteira** (com `data/raw_json` e os arquivos do projeto) para o seu Google Drive em `MyDrive/projeto-ic`.
+1. Suba a pasta do projeto **inteira** (com `data/raw_json` e os arquivos do projeto) para o seu Google Drive — o notebook usa `MyDrive/projeto-ic-2`; se usar outro nome, ajuste `PROJETO` na célula 3.
 2. Abra o <https://colab.research.google.com>, **File → Upload notebook**, e envie o `IC_treino_colab.ipynb`.
 3. **Ambiente de execução → Alterar o tipo → GPU**.
 4. Rode as células na ordem. Elas instalam tudo, geram o dataset (com glossário + negativos), treinam salvando no Drive, avaliam e deixam você conversar com o modelo.
 
 **Detalhes importantes do Colab:**
 
-- O `configs/exp01_colab.yaml` usa `fp16` (a T4 **não** tem bf16 nativo; forçar bf16 deixa o treino ~10× mais lento) e salva os checkpoints no Drive (`output_dir: /content/drive/MyDrive/projeto-ic/checkpoints/exp01`).
+- O `configs/exp01_colab.yaml` usa `bf16` (A100 e L4 suportam). Numa **T4**, o `train.py` troca para fp16 sozinho; troque também `bnb_4bit_compute_dtype` para `"float16"`, senão o treino fica bem mais lento.
+- Os checkpoints vão para `checkpoints/exp01` **dentro da pasta do projeto no Drive** (caminho relativo, vale para qualquer nome de pasta) e sobrevivem se a sessão cair.
 - Se o Colab cair no meio, rode as primeiras células de novo e use a célula **"7b. RETOMAR"** (os checkpoints ficam no Drive).
 - Ao terminar, **baixe a pasta `checkpoints/exp01` do Drive para o seu PC** se quiser servir a interface localmente.
 
@@ -475,7 +476,7 @@ projeto-ic/
 │   ├── collect.yaml           # config da coleta
 │   ├── dataset_v3.yaml        # config do gerador de QA (+ glossário)
 │   ├── exp01.yaml             # treino/serviço LOCAL (output_dir = checkpoints/exp01)
-│   └── exp01_colab.yaml       # treino no COLAB (fp16, output_dir no Google Drive)
+│   └── exp01_colab.yaml       # treino no COLAB (bf16, lotes maiores; checkpoints na pasta do projeto no Drive)
 ├── data/
 │   ├── raw_json/              # JSONs ARM crus (você coloca aqui)
 │   ├── processed/             # dataset_v3.jsonl gerado
@@ -539,12 +540,12 @@ projeto-ic/
 
 | Problema | Solução |
 |---|---|
-| `ValueError: Can't find 'adapter_config.json' at '/content/drive/...'` **ou** `HFValidationError: Repo id must be in the form ...` | O `output_dir` do config aponta para o **Google Drive** (é o `exp01_colab.yaml`). Rodando **localmente**, use `configs/exp01.yaml` (que aponta para `checkpoints/exp01`). Confira que a pasta `checkpoints/exp01` tem o `adapter_config.json` e o `adapter_model.safetensors` — se treinou no Colab, baixe-a do Drive. |
+| `ValueError: Can't find 'adapter_config.json'` **ou** `HFValidationError: Repo id must be in the form ...` | O adapter não está em `checkpoints/exp01` da pasta onde você está rodando. Confira que está na raiz do projeto (no Colab: célula 3) e que `checkpoints/exp01` tem o `adapter_config.json` e o `adapter_model.safetensors` — se treinou no Colab e vai rodar no PC, baixe a pasta do Drive. Configs antigos tinham o caminho do Drive escrito por extenso (`/content/drive/MyDrive/projeto-ic/...`); use os desta versão. |
 | `ModuleNotFoundError: No module named 'src'` | Você não está na raiz do projeto. Rode `cd` até a pasta `projeto-ic` antes de executar. |
 | Erro **401 / gated repo** ao baixar o modelo | Você não aceitou a licença do LLaMA 2 ou não fez login. Veja a [seção 2](#2-baixar-o-modelo-llama-2-licença--login). |
 | `Set-ExecutionPolicy` / não consigo ativar o venv | Rode `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` uma vez e ative de novo. |
 | `CUDA out of memory` no treino | No config, mantenha `per_device_train_batch_size: 1` e aumente `gradient_accumulation_steps` (ex.: 16). Feche outros programas que usam a GPU. |
-| `bf16 is not supported on your GPU` (ex.: Colab T4) | O `train.py` já cai para fp16 sozinho em GPUs sem bf16. No `exp01_colab.yaml` isso já está fixado (`fp16: true`, `bnb_4bit_compute_dtype: "float16"`). |
+| `bf16 is not supported on your GPU` (ex.: Colab T4) | O `train.py` já cai para fp16 sozinho em GPUs sem bf16. Numa T4, troque também `bnb_4bit_compute_dtype` para `"float16"` no `exp01_colab.yaml`. |
 | Erro do `bitsandbytes` no Windows | Use uma versão recente (`pip install -U bitsandbytes`, ≥ 0.43 tem suporte a Windows). Se persistir, rode dentro do WSL2 (Ubuntu). |
 | A API responde **503** | O modelo ainda está carregando; espere a mensagem `Modelo pronto.` no log. |
 | A API responde **401** | A variável `IC_API_KEY` está definida; passe o header `X-API-Key` (ou preencha nos Ajustes da interface), ou remova a variável. |

@@ -207,3 +207,15 @@ def test_auditoria_corpus_limpo(tmp_path, monkeypatch):
                                       "--out", str(tmp_path / "r.json"),
                                       "--estrito"])
     audit_mod.main()                            # não sai com erro
+
+
+def test_pasta_com_jsons_sem_estado_nao_duplica(tmp_path):
+    raw = tmp_path / "raw"
+    save_json(DS_A, raw / old_filename(DS_A))     # corpus antigo, sem .state.json
+    http = FakeHttp({URL_A: DS_A})
+    c = collect_source(cfg_for(tmp_path), session=http)
+    assert http.calls == [] and sum(c.values()) == 0
+    assert [p.name for p in raw.glob("*.json")] == [old_filename(DS_A)]
+    c = collect_source(cfg_for(tmp_path), session=FakeHttp({URL_A: DS_A}),
+                       force=True)               # só se o usuário pedir
+    assert c["new"] == 1

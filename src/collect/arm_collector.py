@@ -15,6 +15,7 @@
 Uso:
     python -m src.collect.arm_collector --config configs/collect.yaml
     python -m src.collect.arm_collector --config configs/collect.yaml --limite 20
+    python -m src.collect.arm_collector --config configs/collect.yaml --out data/raw_json_v2
 ou
     python -m src.collect.arm_collector --sitemap URL --out data/raw_json
 
@@ -36,7 +37,8 @@ from typing import Any
 import requests
 from bs4 import BeautifulSoup
 
-from src.common.io import ensure_dir, load_json, load_yaml, save_json, setup_logger
+from src.common.io import (ensure_dir, list_json_files, load_json, load_yaml,
+                           save_json, setup_logger)
 
 log = setup_logger("collect.arm")
 
@@ -259,10 +261,24 @@ def new_counters() -> dict[str, int]:
 
 
 def collect_source(cfg: ArmSourceConfig, session=None,
-                   limit: int | None = None) -> dict[str, int]:
+                   limit: int | None = None, force: bool = False) -> dict[str, int]:
     out_dir = ensure_dir(cfg.output_dir)
     state_path = Path(cfg.state_file)
     state = State.load(state_path)
+
+    # Pasta com JSONs mas SEM estado (ex.: corpus copiado de outra máquina):
+    # o coletor não sabe a que URL cada arquivo antigo corresponde e gravaria
+    # tudo de novo com nomes novos -> corpus duplicado. Melhor coletar numa
+    # pasta nova e comparar.
+    existing = list_json_files(out_dir)
+    if existing and not state.urls and not force:
+        log.error("%s já tem %d JSONs, mas não há %s. Sem o estado, a coleta "
+                  "gravaria cada registro de novo com nome novo e o corpus "
+                  "ficaria DUPLICADO. Colete numa pasta nova (--out "
+                  "data/raw_json_v2) e compare com a auditoria, ou use "
+                  "--forcar se sabe o que está fazendo.", out_dir,
+                  len(existing), state_path)
+        return new_counters()
 
     if session is None:
         session = requests.Session()
@@ -332,19 +348,25 @@ def main() -> None:
     p.add_argument("--state", type=str, default=None)
     p.add_argument("--limite", type=int, default=None,
                    help="processa só as N primeiras URLs (teste rápido)")
+    p.add_argument("--forcar", action="store_true",
+                   help="coleta mesmo numa pasta com JSONs e sem .state.json")
     args = p.parse_args()
 
     if args.config:
         cfg_dict = load_yaml(args.config)
         for src in cfg_dict.get("sources", []):
-            collect_source(ArmSourceConfig.from_dict(src), limit=args.limite)
+            if args.out:   # --out troca a pasta de saída do config
+                src = {**src, "output_dir": args.out,
+                       "state_file": args.state or f"{args.out}/.state.json"}
+            collect_source(ArmSourceConfig.from_dict(src), limit=args.limite,
+                           force=args.forcar)
     else:
         if not args.sitemap or not args.out:
             p.error("informe --config OU --sitemap e --out")
         collect_source(ArmSourceConfig(
             sitemap_url=args.sitemap, output_dir=args.out,
             state_file=args.state or f"{args.out}/.state.json"),
-            limit=args.limite)
+            limit=args.limite, force=args.forcar)
 
 
 if __name__ == "__main__":
