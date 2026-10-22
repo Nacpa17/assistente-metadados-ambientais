@@ -545,6 +545,7 @@ projeto-ic/
 | Erro **401 / gated repo** ao baixar o modelo | Você não aceitou a licença do LLaMA 2 ou não fez login. Veja a [seção 2](#2-baixar-o-modelo-llama-2-licença--login). |
 | `Set-ExecutionPolicy` / não consigo ativar o venv | Rode `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` uma vez e ative de novo. |
 | `CUDA out of memory` no treino | No config, mantenha `per_device_train_batch_size: 1` e aumente `gradient_accumulation_steps` (ex.: 16). Feche outros programas que usam a GPU. |
+| `TypeError: TrainingArguments.__init__() got an unexpected keyword argument 'warmup_ratio'` | O transformers 5.x removeu `warmup_ratio`. O `train.py` desta versão já converte para o equivalente (`warmup_steps` fracionário); atualize o código. O notebook fixa as versões testadas (`transformers==5.20.2`, `peft==0.21.2`). |
 | `bf16 is not supported on your GPU` (ex.: Colab T4) | O `train.py` já cai para fp16 sozinho em GPUs sem bf16. Numa T4, troque também `bnb_4bit_compute_dtype` para `"float16"` no `exp01_colab.yaml`. |
 | Erro do `bitsandbytes` no Windows | Use uma versão recente (`pip install -U bitsandbytes`, ≥ 0.43 tem suporte a Windows). Se persistir, rode dentro do WSL2 (Ubuntu). |
 | A API responde **503** | O modelo ainda está carregando; espere a mensagem `Modelo pronto.` no log. |

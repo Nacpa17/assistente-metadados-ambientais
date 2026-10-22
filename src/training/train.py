@@ -56,6 +56,7 @@ except Exception:
 # --------------------------------------------------------------------------- #
 
 from src.common.io import load_yaml, setup_logger
+from src.training.compat import training_kwargs_compat
 from src.common.prompts import build_training_prompt, DEFAULT_SYSTEM_PROMPT
 
 log = setup_logger("training.train")
@@ -261,7 +262,7 @@ def main() -> None:
     print("=" * 70)
 
     do_eval = eval_ds is not None
-    training_args = TrainingArguments(
+    targs = dict(
         output_dir=str(out_dir),
         num_train_epochs=epochs,
         per_device_train_batch_size=bsz,
@@ -292,6 +293,10 @@ def main() -> None:
         seed=seed,
         ddp_find_unused_parameters=False,
     )
+    # funciona no transformers 4.x e 5.x: o 5.x removeu warmup_ratio, que vira
+    # warmup_steps fracionário (mesmo efeito) — veja src/training/compat.py
+    training_args = TrainingArguments(
+        **training_kwargs_compat(TrainingArguments, targs, log))
 
     callbacks: list[TrainerCallback] = [ETACallback()]
     if do_eval and bool(tcfg.get("load_best_model_at_end", True)):
@@ -318,7 +323,7 @@ def main() -> None:
         print("[pausa] Treino interrompido pelo usuário (Ctrl+C).")
         if last:
             print(f"[pausa] Último checkpoint completo: {last}")
-            print(f"[pausa] Para retomar exatamente dali:")
+            print("[pausa] Para retomar exatamente dali:")
             print(f"        python -m src.training.train "
                   f"--config {args.config} --resume")
         else:
