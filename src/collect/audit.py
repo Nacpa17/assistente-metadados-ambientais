@@ -170,6 +170,7 @@ def audit(json_dir: str | Path, state: str | Path | None = None,
     state_path = Path(state) if state else json_dir / ".state.json"
     return {
         "json_dir": str(json_dir),
+        "json_dir_abs": str(json_dir.resolve()),
         "n_files": len(files),
         "n_valid": n,
         "invalid": invalid,
@@ -195,6 +196,11 @@ def audit(json_dir: str | Path, state: str | Path | None = None,
 
 
 def recommendations(rep: dict[str, Any]) -> list[str]:
+    if rep["n_files"] == 0:
+        # sem corpus, as outras recomendações não fazem sentido
+        return [f"Nenhum JSON em {rep['json_dir_abs']}. Confira se está na "
+                "raiz do projeto (no Colab: célula 3) e se os JSON-LD estão "
+                "em data/raw_json."]
     out = []
     st = rep["state"]
     if not st.get("present"):
@@ -233,6 +239,9 @@ def _bar(pct: float, width: int = 20) -> str:
 def print_report(rep: dict[str, Any], top: int = 15) -> None:
     p = print
     p(f"\n== Auditoria do corpus: {rep['json_dir']} ==")
+    if rep["n_files"] == 0:
+        p(f"ATENÇÃO: nenhum JSON encontrado em {rep['json_dir_abs']} "
+          f"(pasta atual: {Path.cwd()})")
     p(f"Arquivos: {rep['n_files']} | registros válidos: {rep['n_valid']} | "
       f"inválidos: {len(rep['invalid'])} | com procedência (_fonte): "
       f"{rep['n_with_provenance']}")
@@ -288,7 +297,8 @@ def main() -> None:
     save_json(rep, a.out)
     print_report(rep, top=a.top)
     print(f"\nRelatório completo: {a.out}")
-    if a.estrito and (rep["state"].get("n_overwritten_records")
+    if a.estrito and (rep["n_files"] == 0
+                      or rep["state"].get("n_overwritten_records")
                       or rep["invalid"] or rep["duplicates"]["content"]):
         sys.exit(1)
 

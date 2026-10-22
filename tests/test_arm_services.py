@@ -183,3 +183,19 @@ def test_erros_esparsos_nao_interrompem(corpus_dir, tmp_path):
                   levels=["c1"], do_dods=True, do_dqrs=False,
                   do_citations=False, do_sites=False, max_consecutive_errors=2)
     assert "1twrmr" in res["classes"]
+
+
+def test_catalogo_nao_e_sobrescrito_com_corpus_vazio(tmp_path, monkeypatch):
+    import sys
+    from src.collect import arm_extra
+    vazio = tmp_path / "raw_json"
+    vazio.mkdir()
+    out = tmp_path / "catalog.json"
+    out.write_text('{"version": 1, "bom": true}', encoding="utf-8")
+    monkeypatch.setattr(sys, "argv", ["arm_extra", "--json-dir", str(vazio),
+                                      "--out", str(out), "--cache",
+                                      str(tmp_path / "cache"), "--config", ""])
+    with pytest.raises(SystemExit) as e:
+        arm_extra.main()
+    assert e.value.code == 2
+    assert json.loads(out.read_text(encoding="utf-8")) == {"version": 1, "bom": True}

@@ -219,3 +219,17 @@ def test_pasta_com_jsons_sem_estado_nao_duplica(tmp_path):
     c = collect_source(cfg_for(tmp_path), session=FakeHttp({URL_A: DS_A}),
                        force=True)               # só se o usuário pedir
     assert c["new"] == 1
+
+
+def test_auditoria_sem_jsons_avisa_e_falha_no_estrito(tmp_path, monkeypatch, capsys):
+    vazio = tmp_path / "raw_json"
+    vazio.mkdir()
+    rep = audit_mod.audit(vazio)
+    rec = audit_mod.recommendations(rep)
+    assert len(rec) == 1 and rec[0].startswith("Nenhum JSON")
+    monkeypatch.setattr(sys, "argv", ["audit", "--json-dir", str(vazio), "--out",
+                                      str(tmp_path / "r.json"), "--estrito"])
+    with pytest.raises(SystemExit) as e:
+        audit_mod.main()
+    assert e.value.code == 1
+    assert "ATENÇÃO: nenhum JSON" in capsys.readouterr().out

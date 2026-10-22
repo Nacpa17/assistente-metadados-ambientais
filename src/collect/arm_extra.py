@@ -384,6 +384,13 @@ def main() -> None:
 
     targets = corpus_targets(a.json_dir)
     explicit = read_datastream_list(a.datastreams) if a.datastreams else []
+    if not targets and not explicit:
+        # não sobrescreve um catálogo bom com um vazio
+        log.error("Nenhum produto encontrado: %s não tem JSON-LD (pasta "
+                  "atual: %s). Confira se está na raiz do projeto e se os "
+                  "JSONs estão em data/raw_json. Nada foi salvo.",
+                  Path(a.json_dir).resolve(), Path.cwd())
+        sys.exit(2)
     levels = [x.strip() for x in a.niveis.split(",") if x.strip()]
 
     if a.dry_run:
