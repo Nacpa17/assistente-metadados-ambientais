@@ -237,16 +237,15 @@ python -m src.training.train --config configs/exp01.yaml --resume checkpoints/ex
 
 Numa GPU pequena o treino pode levar dezenas de horas. No Colab (GPU T4 gratuita) as épocas completam em **2–4 h**. O projeto já inclui o notebook `IC_treino_colab.ipynb`.
 
-1. Suba a pasta do projeto **inteira** (com `data/raw_json` e os arquivos do projeto) para o seu Google Drive — o notebook usa `MyDrive/projeto-ic-2`; se usar outro nome, ajuste `PROJETO` na célula 3.
-2. Abra o <https://colab.research.google.com>, **File → Upload notebook**, e envie o `IC_treino_colab.ipynb`.
-3. **Ambiente de execução → Alterar o tipo → GPU**.
-4. Rode as células na ordem. Elas instalam tudo, geram o dataset (com glossário + negativos), treinam salvando no Drive, avaliam e deixam você conversar com o modelo.
+1. Suba a pasta do projeto (`projeto-ic-2`) para o **Meu Drive**. Se já existir uma pasta com esse nome, renomeie a antiga antes — os dados dela são aproveitados.
+2. Abra o `IC_treino_colab.ipynb` de dentro da pasta e escolha uma GPU em **Ambiente de execução → Alterar o tipo de ambiente de execução**.
+3. **Ambiente de execução → Executar tudo.** O notebook acha a pasta do projeto, traz de outra versão do projeto no seu Drive o que faltar (JSON-LD, dataset, glossário, adapter e avaliações da fase 2), só gera o dataset e só treina se ainda não existirem, avalia as 4 combinações (modelo base × fine-tuning, sem e com RAG) e mostra uma tabela com os resultados. Ele pede só a autorização do Drive e o token do Hugging Face (dá para guardar o token nos *Secrets* do Colab como `HF_TOKEN`).
 
 **Detalhes importantes do Colab:**
 
 - O `configs/exp01_colab.yaml` usa `bf16` (A100 e L4 suportam). Numa **T4**, o `train.py` troca para fp16 sozinho; troque também `bnb_4bit_compute_dtype` para `"float16"`, senão o treino fica bem mais lento.
 - Os checkpoints vão para `checkpoints/exp01` **dentro da pasta do projeto no Drive** (caminho relativo, vale para qualquer nome de pasta) e sobrevivem se a sessão cair.
-- Se o Colab cair no meio, rode as primeiras células de novo e use a célula **"7b. RETOMAR"** (os checkpoints ficam no Drive).
+- Se o Colab cair no meio do treino, rode as células 1 a 5 de novo, mude `RETOMAR = True` na célula **7b** e rode-a (os checkpoints ficam no Drive). Para treinar de novo mesmo já havendo um adapter, use `FORCAR_TREINO = True` na célula 7.
 - Ao terminar, **baixe a pasta `checkpoints/exp01` do Drive para o seu PC** se quiser servir a interface localmente.
 
 > **Voltou para o PC?** Ao rodar/avaliar localmente, use `configs/exp01.yaml` (caminho local `checkpoints/exp01`), **não** o `_colab`.
