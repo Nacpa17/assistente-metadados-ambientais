@@ -1,6 +1,6 @@
 """Streaming: quebras de linha da resposta não podem partir o evento SSE."""
 
-from src.api.sse import parse_sse, sse_event
+from assistente_metadados.api.sse import parse_sse, sse_event
 
 
 def test_texto_com_quebras_de_linha_fica_inteiro():

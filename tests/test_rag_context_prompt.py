@@ -3,12 +3,12 @@ que já aprendeu, sem estourar o limite de tokens."""
 
 import json
 
-from src.common.prompts import (DEFAULT_RAG_INSTRUCTIONS, NO_CONTEXT_TEXT,
+from assistente_metadados.common.prompts import (DEFAULT_RAG_INSTRUCTIONS, NO_CONTEXT_TEXT,
                                 build_chat_prompt, build_rag_prompt,
                                 build_training_prompt)
-from src.prompts.generator import parse_record
-from src.rag.context import build_context, fit_to_budget, render_doc
-from src.rag.pipeline import RagPipeline, RagSettings, sources_payload
+from assistente_metadados.prompts.generator import parse_record
+from assistente_metadados.rag.context import build_context, fit_to_budget, render_doc
+from assistente_metadados.rag.pipeline import RagPipeline, RagSettings, sources_payload
 
 SYSTEM = "Você é um assistente técnico."
 

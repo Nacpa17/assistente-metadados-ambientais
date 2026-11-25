@@ -26,7 +26,7 @@ def corpus_dir(tmp_path_factory) -> Path:
 
 @pytest.fixture(scope="session")
 def index_path(corpus_dir, tmp_path_factory) -> Path:
-    from src.rag.build_index import build
+    from assistente_metadados.rag.build_index import build
     out = tmp_path_factory.mktemp("rag") / "index.json"
     # extra="none": os testes não podem depender de data/arm_extra local
     build(str(corpus_dir), str(CURATED_GLOSSARY), str(EXPANSIONS), str(out),
@@ -36,7 +36,7 @@ def index_path(corpus_dir, tmp_path_factory) -> Path:
 
 @pytest.fixture(scope="session")
 def index(index_path):
-    from src.rag.index import Index
+    from assistente_metadados.rag.index import Index
     return Index.load(index_path)
 
 
@@ -45,9 +45,9 @@ def catalog(corpus_dir, tmp_path_factory):
     """Catálogo de serviços ARM coletado do servidor FALSO (tests/fake_arm.py:
     formatos reais do ACT, dados inventados) para o mini-corpus."""
     from fake_arm import FakeArmSession
-    from src.collect.arm_extra import build_catalog, collect, corpus_targets
-    from src.collect.arm_services import ArmClient
-    from src.common.arm_names import parse_datastream
+    from assistente_metadados.collect.arm_extra import build_catalog, collect, corpus_targets
+    from assistente_metadados.collect.arm_services import ArmClient
+    from assistente_metadados.common.arm_names import parse_datastream
     client = ArmClient(cache_dir=tmp_path_factory.mktemp("arm_cache"),
                        delay_s=0, session=FakeArmSession())
     res = collect(corpus_targets(corpus_dir),
@@ -59,7 +59,7 @@ def catalog(corpus_dir, tmp_path_factory):
 
 @pytest.fixture(scope="session")
 def catalog_path(catalog, tmp_path_factory) -> Path:
-    from src.common.io import save_json
+    from assistente_metadados.common.io import save_json
     p = tmp_path_factory.mktemp("arm_extra") / "catalog.json"
     save_json(catalog, p)
     return p

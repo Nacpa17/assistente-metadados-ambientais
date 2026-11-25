@@ -296,7 +296,7 @@
           <button data-t="dark">Escuro</button>
         </div>
       </div>
-      <p class="panel-note">As respostas vêm do modelo LLaMA 2 ajustado, servido pela API do projeto. Se a API não estiver no ar, a interface entra em <b>modo demonstração</b> com respostas de exemplo. Para subir tudo de uma vez: <code>python -m src.api.server</code></p>
+      <p class="panel-note">As respostas vêm do modelo LLaMA 2 ajustado, servido pela API do projeto. Se a API não estiver no ar, a interface entra em <b>modo demonstração</b> com respostas de exemplo. Para subir tudo de uma vez: <code>python -m assistente_metadados.api.server</code></p>
     </div>
   </aside>
 
@@ -512,7 +512,7 @@
     return new Promise(res=>{
       const q=text.toLowerCase(); let ans=null;
       for(const k in DEMO){ if(q.includes(k)){ ans=DEMO[k]; break; } }
-      if(!ans) ans="_(modo demonstração)_ Ainda não estou conectado ao servidor, então não posso responder de verdade a essa pergunta. Suba a API com `python -m src.api.server` — aí eu passo a responder pelo modelo treinado.";
+      if(!ans) ans="_(modo demonstração)_ Ainda não estou conectado ao servidor, então não posso responder de verdade a essa pergunta. Suba a API com `python -m assistente_metadados.api.server` — aí eu passo a responder pelo modelo treinado.";
       let i=0; a.content.innerHTML=""; a.content.dataset.raw="";
       const step=()=>{
         if(!busy){ res(); return; }

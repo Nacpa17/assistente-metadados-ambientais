@@ -19,9 +19,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Dependências mínimas (sem torch/transformers)
-        run: python -m pip install pyyaml requests beautifulsoup4 pytest
+      - name: Instalar o pacote e as dependências de teste (sem torch/transformers)
+        run: python -m pip install -e ".[dev]"
       - name: Sintaxe de todos os módulos
-        run: python -m compileall -q src tests
+        run: python -m compileall -q assistente_metadados tests
       - name: Testes
         run: python -m pytest -q

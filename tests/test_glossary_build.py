@@ -7,10 +7,10 @@ import pytest
 import yaml
 
 from conftest import ROOT
-from src.common.io import save_json
-from src.glossary.build import (build_glossary, harvest_dod, load_curated,
+from assistente_metadados.common.io import save_json
+from assistente_metadados.glossary.build import (build_glossary, harvest_dod, load_curated,
                                 useful_long_name)
-from src.prompts.generator import GlossaryQA, QABuilder
+from assistente_metadados.prompts.generator import GlossaryQA, QABuilder
 
 LEGACY_KEYS = {"term", "aliases", "category", "unit", "definition", "uso",
                "expansao", "source", "n_datasets"}

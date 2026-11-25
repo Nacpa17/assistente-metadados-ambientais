@@ -4,7 +4,7 @@ Classes falsas com os mesmos campos: o teste não precisa de torch."""
 import dataclasses
 import logging
 
-from src.training.compat import training_kwargs_compat
+from assistente_metadados.training.compat import training_kwargs_compat
 
 
 @dataclasses.dataclass

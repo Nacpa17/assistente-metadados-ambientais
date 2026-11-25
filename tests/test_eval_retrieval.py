@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from src.common.io import load_yaml
-from src.prompts.generator import run as run_generator
-from src.rag.eval_retrieval import build_queries, evaluate, out_of_scope_report
+from assistente_metadados.common.io import load_yaml
+from assistente_metadados.prompts.generator import run as run_generator
+from assistente_metadados.rag.eval_retrieval import build_queries, evaluate, out_of_scope_report
 
 ROOT = Path(__file__).resolve().parents[1]
 

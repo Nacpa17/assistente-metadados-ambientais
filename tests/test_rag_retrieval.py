@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.rag.index import Index
+from assistente_metadados.rag.index import Index
 
 TWR1 = ("Sixty Meter Tower: mixing ratio at surface, 25-m, and 60-m, "
         "1-min average - 1twrmr")

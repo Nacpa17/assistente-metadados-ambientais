@@ -5,12 +5,12 @@ import json
 import pytest
 
 from fake_arm import FakeArmSession, FakeResponse
-from src.collect.arm_extra import build_catalog, collect, corpus_targets
-from src.collect.arm_services import (
+from assistente_metadados.collect.arm_extra import build_catalog, collect, corpus_targets
+from assistente_metadados.collect.arm_services import (
     ArmClient, ArmServiceError, doi_from_text, fetch_citation, fetch_dod,
     fetch_dqrs, fetch_facilities, parse_dod, parse_dqrs,
 )
-from src.common.arm_names import parse_datastream
+from assistente_metadados.common.arm_names import parse_datastream
 
 
 def client(tmp_path=None, **kw):
@@ -166,7 +166,7 @@ def test_datastream_montado_sem_evidencia_nao_e_confirmado(corpus_dir, tmp_path)
 
 
 def test_sem_rede_interrompe_cedo(corpus_dir, tmp_path):
-    from src.collect.arm_extra import ArmUnreachable
+    from assistente_metadados.collect.arm_extra import ArmUnreachable
     blocked = FakeArmSession({"https://": [FakeResponse(403, text="")] * 100})
     with pytest.raises(ArmUnreachable, match="5 consultas seguidas"):
         collect(corpus_targets(corpus_dir), [], client(tmp_path, session=blocked),
@@ -187,7 +187,7 @@ def test_erros_esparsos_nao_interrompem(corpus_dir, tmp_path):
 
 def test_catalogo_nao_e_sobrescrito_com_corpus_vazio(tmp_path, monkeypatch):
     import sys
-    from src.collect import arm_extra
+    from assistente_metadados.collect import arm_extra
     vazio = tmp_path / "raw_json"
     vazio.mkdir()
     out = tmp_path / "catalog.json"

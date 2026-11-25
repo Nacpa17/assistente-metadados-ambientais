@@ -9,13 +9,13 @@ from collections import Counter
 import pytest
 
 from conftest import CURATED_GLOSSARY, EXPANSIONS
-from src.common.arm_catalog import (class_variables, display_unit, unit_split,
+from assistente_metadados.common.arm_catalog import (class_variables, display_unit, unit_split,
                                     units_text, variable_info)
-from src.common.io import save_json
-from src.rag.build_index import build, load_extra
-from src.rag.context import build_context
-from src.rag.extra import apply_extra, merge_dqrs
-from src.rag.index import Index
+from assistente_metadados.common.io import save_json
+from assistente_metadados.rag.build_index import build, load_extra
+from assistente_metadados.rag.context import build_context
+from assistente_metadados.rag.extra import apply_extra, merge_dqrs
+from assistente_metadados.rag.index import Index
 
 
 @pytest.fixture(scope="session")

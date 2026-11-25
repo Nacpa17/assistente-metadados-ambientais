@@ -6,11 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from src.common.io import iter_jsonl, load_yaml, save_json
-from src.common.prompts import DEFAULT_RAG_INSTRUCTIONS
-from src.eval.metrics import aggregate, contains_gold, is_refusal
-from src.eval.rescore import rescore_file
-from src.prompts.add_negatives import REFUSALS
+from assistente_metadados.common.io import iter_jsonl, load_yaml, save_json
+from assistente_metadados.common.prompts import DEFAULT_RAG_INSTRUCTIONS
+from assistente_metadados.eval.metrics import aggregate, contains_gold, is_refusal
+from assistente_metadados.eval.rescore import rescore_file
+from assistente_metadados.prompts.add_negatives import REFUSALS
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLD = list(iter_jsonl(ROOT / "benchmarks" / "gold_qa.jsonl"))

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "assistente-metadados"
+version = "2.0.0"
+description = "Assistente de linguagem para os metadados ambientais da ARM: fine-tuning do LLaMA 2 com LoRA/QLoRA e RAG."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Eduardo Ribeiro do Amparo Rodrigues de Souza" }]
+keywords = ["llm", "fine-tuning", "lora", "qlora", "rag", "metadata", "arm", "atmospheric-science"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "pyyaml>=6.0.1",
+    "requests>=2.31",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.1",
+    "tqdm>=4.66",
+    "rich>=13.7",
+]
+
+[project.optional-dependencies]
+# O PyTorch é instalado à parte, na versão da sua máquina (o Colab já tem).
+treino = [
+    "transformers>=4.40",
+    "peft>=0.10",
+    "accelerate>=0.30",
+    "bitsandbytes>=0.43",
+    "datasets>=2.18",
+    "sentencepiece>=0.2",
+]
+avaliacao = ["sacrebleu>=2.4", "rouge-score>=0.1.2", "nltk>=3.8", "scikit-learn>=1.4"]
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "pydantic>=2.6", "python-multipart>=0.0.9"]
+dev = ["pytest>=8.0"]
+completo = ["assistente-metadados[treino,avaliacao,api]"]
+
+[project.urls]
+Homepage = "https://github.com/Nacpa17/assistente-metadados-ambientais"
+"Fase 4: geração de NetCDF" = "https://github.com/Nacpa17/geracao-netcdf-agentes"
+
+[tool.setuptools.packages.find]
+include = ["assistente_metadados*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

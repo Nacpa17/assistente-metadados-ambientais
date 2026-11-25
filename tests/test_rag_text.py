@@ -1,4 +1,4 @@
-from src.rag.text import contains_phrase, doi_suffix, phrase, tokenize
+from assistente_metadados.rag.text import contains_phrase, doi_suffix, phrase, tokenize
 
 
 def test_identificador_composto_gera_inteiro_e_partes():

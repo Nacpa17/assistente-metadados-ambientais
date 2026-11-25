@@ -8,7 +8,7 @@
 #
 # Edite à vontade (como o glossary.yaml): uma palavra por chave, sem se
 # preocupar com acentos ou maiúsculas — tudo é normalizado. Depois de editar,
-# reconstrua o índice:  python -m src.rag.build_index
+# reconstrua o índice:  python -m assistente_metadados.rag.build_index
 termos:
   umidade: [humidity, moisture, rh]
   temperatura: [temperature, temp]

@@ -14,7 +14,7 @@ acrescenta e o que já está implementado.
 
 | # | Fonte (ARM) | O que acrescenta | Acesso | Valor para o projeto | Situação |
 |---|---|---|---|---|---|
-| 1 | **DOD** — *Data Object Design* (`pcm.arm.gov/pcm/api/dods/<produto>.<nível>`) | variáveis de cada produto e nível (`a1`, `b1`, `c1`…) com **nome longo, unidade**, `standard_name`, dimensões; versões do produto | público, JSON | **alto**: o JSON-LD não traz unidades; o DOD é a definição oficial do arquivo | **implementado** (`src.collect.arm_extra`) |
+| 1 | **DOD** — *Data Object Design* (`pcm.arm.gov/pcm/api/dods/<produto>.<nível>`) | variáveis de cada produto e nível (`a1`, `b1`, `c1`…) com **nome longo, unidade**, `standard_name`, dimensões; versões do produto | público, JSON | **alto**: o JSON-LD não traz unidades; o DOD é a definição oficial do arquivo | **implementado** (`assistente_metadados.collect.arm_extra`) |
 | 2 | **DQR** — *Data Quality Reports* (`dqr-web-service.arm.gov/dqr_full/...`) | problemas de qualidade conhecidos por datastream: categoria, período, variáveis afetadas, descrição, sugestão | público, JSON | **alto para o RAG**: responde "esse dado é confiável no período X?" | **implementado** (só no RAG) |
 | 3 | **Serviço de citação** (`adc.arm.gov/citationservice/...`) | citação oficial de cada datastream, com DOI | público | médio: **confirma** o datastream e o DOI | **implementado** (opcional, `--citacoes`) |
 | 4 | **Índice de metadados da Data Discovery** (`adc.arm.gov/elastic/metadata/_search`) | facilities de cada sítio com coordenadas; outros campos a explorar | público (usado pelo ACT) | médio: fichas de sítio; possivelmente mais campos | **implementado** (sítios) + `--explorar-site` |
@@ -25,7 +25,7 @@ acrescenta e o que já está implementado.
 
 ## O que muda no projeto
 
-- **Unidades oficiais** (DOD) → glossário (`src.glossary.build --extra`) e fichas
+- **Unidades oficiais** (DOD) → glossário (`assistente_metadados.glossary.build --extra`) e fichas
   do RAG. Variáveis de controle de qualidade (`qc_*`) ficam de fora.
 - **Níveis de processamento e datastreams confirmados** (DOD + DQR/citação) →
   fichas de dataset do RAG. Um datastream só é "confirmado" quando a ARM
@@ -38,12 +38,12 @@ acrescenta e o que já está implementado.
 ## Como rodar
 
 ```powershell
-python -m src.collect.audit                       # 1. o que o corpus tem hoje
-python -m src.collect.arm_extra --dry-run         # 2. plano de consultas (sem internet)
-python -m src.collect.arm_extra --max-classes 20  # 3. teste pequeno
-python -m src.collect.arm_extra                   # 4. tudo (com cache)
-python -m src.rag.build_index                     # 5. índice com o catálogo
-python -m src.glossary.build --json-dir data/raw_json --extra auto   # 6. (novo FT)
+python -m assistente_metadados.collect.audit                       # 1. o que o corpus tem hoje
+python -m assistente_metadados.collect.arm_extra --dry-run         # 2. plano de consultas (sem internet)
+python -m assistente_metadados.collect.arm_extra --max-classes 20  # 3. teste pequeno
+python -m assistente_metadados.collect.arm_extra                   # 4. tudo (com cache)
+python -m assistente_metadados.rag.build_index                     # 5. índice com o catálogo
+python -m assistente_metadados.glossary.build --json-dir data/raw_json --extra auto   # 6. (novo FT)
 ```
 
 Detalhes na seção 8 do README.
@@ -55,7 +55,7 @@ Detalhes na seção 8 do README.
 - **Primeira execução real:** os formatos foram conferidos no código do ACT e
   testados com um servidor falso nos mesmos formatos, mas o ambiente onde o
   código foi escrito não acessa os servidores da ARM. Comece com
-  `--max-classes 20` e confira o resultado com `python -m src.rag.search`.
+  `--max-classes 20` e confira o resultado com `python -m assistente_metadados.rag.search`.
 - **Coletor da fase 2:** nomeava arquivos só pelo título (80 caracteres), o
   que podia fazer um produto sobrescrever outro. Corrigido; a auditoria mostra
   se isso aconteceu no corpus atual e a recoleta recupera os registros.

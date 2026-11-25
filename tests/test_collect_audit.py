@@ -7,10 +7,10 @@ import sys
 import pytest
 
 from fixtures_arm import write_corpus
-from src.collect import audit as audit_mod
-from src.collect.arm_collector import (ORPHAN_DIR, ArmSourceConfig, State,
+from assistente_metadados.collect import audit as audit_mod
+from assistente_metadados.collect.arm_collector import (ORPHAN_DIR, ArmSourceConfig, State,
                                        collect_source, filename_for, slugify)
-from src.common.io import load_json, save_json
+from assistente_metadados.common.io import load_json, save_json
 
 SITEMAP = "https://adc.arm.gov/sitemap.xml"
 URL_A = "https://adc.arm.gov/discovery/ds/meta.html"
@@ -85,7 +85,7 @@ def test_coleta_nova_grava_procedencia_e_sha_do_original(tmp_path):
     st = State.load(tmp_path / "raw" / ".state.json")
     saved = load_json(tmp_path / "raw" / st.urls[URL_A]["filename"])
     assert saved["_fonte"]["url"] == URL_A
-    assert saved["_fonte"]["coletor"] == "src.collect.arm_collector"
+    assert saved["_fonte"]["coletor"] == "assistente_metadados.collect.arm_collector"
     assert st.urls[URL_A]["sha256"] == sha_of(DS_A)        # sem o _fonte
     # segunda rodada: nada mudou
     c2 = collect_source(cfg, session=FakeHttp({URL_A: DS_A, URL_B: DS_B}))

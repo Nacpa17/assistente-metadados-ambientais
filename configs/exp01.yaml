@@ -87,7 +87,7 @@ generation:
   repetition_penalty: 1.05
 
 # RAG — fase 3 (arquitetura híbrida fine-tuning + recuperação).
-# Monte o índice antes:  python -m src.rag.build_index
+# Monte o índice antes:  python -m assistente_metadados.rag.build_index
 # Ligue na avaliação com --rag, no chat com --rag e na API com IC_RAG=1
 # (ou enabled: true aqui).
 rag:
@@ -96,5 +96,5 @@ rag:
   top_k: 3                  # fichas no contexto
   max_context_chars: 5000   # ~1.300-1.600 tokens de contexto
   max_input_tokens: 3072    # LLaMA 2 = 4096 tokens; sobra espaço p/ resposta
-  min_score: 0.0            # 0 = sem corte; calibre com src.rag.eval_retrieval
+  min_score: 0.0            # 0 = sem corte; calibre com assistente_metadados.rag.eval_retrieval
   expand_pt_en: true        # umidade -> humidity (data/rag/expansoes_pt_en.yaml)

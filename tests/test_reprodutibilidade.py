@@ -25,14 +25,14 @@ def _pipeline(corpus_dir, out_dir, seed):
                          .read_text(encoding="utf-8"))
     out_dir.mkdir()
     gl = out_dir / "glossary_full.json"
-    _run(["src.glossary.build", "--json-dir", str(corpus_dir), "--curated",
+    _run(["assistente_metadados.glossary.build", "--json-dir", str(corpus_dir), "--curated",
           str(CURATED_GLOSSARY), "--out", str(gl), "--min-count", "1"], seed)
     cfg.update(input_json_dir=str(corpus_dir), glossary_path=str(gl),
                output_path=str(out_dir / "dataset.jsonl"))
     (out_dir / "cfg.yaml").write_text(yaml.safe_dump(cfg, allow_unicode=True),
                                       encoding="utf-8")
-    _run(["src.prompts.generator", "--config", str(out_dir / "cfg.yaml")], seed)
-    _run(["src.rag.build_index", "--json-dir", str(corpus_dir), "--glossary",
+    _run(["assistente_metadados.prompts.generator", "--config", str(out_dir / "cfg.yaml")], seed)
+    _run(["assistente_metadados.rag.build_index", "--json-dir", str(corpus_dir), "--glossary",
           str(gl), "--out", str(out_dir / "index.json"), "--extra", "none"], seed)
     index = json.loads((out_dir / "index.json").read_text(encoding="utf-8"))
     for volatile in ("built_at", "info"):

@@ -9,7 +9,7 @@ input_json_dir: "data/raw_json"
 output_path: "data/processed/dataset_v3.jsonl"
 
 # Glossário (curado + auto) — gere antes com:
-#   python -m src.glossary.build --json-dir data/raw_json --out data/glossary/glossary_full.json
+#   python -m assistente_metadados.glossary.build --json-dir data/raw_json --out data/glossary/glossary_full.json
 glossary_path: "data/glossary/glossary_full.json"
 
 mix:
